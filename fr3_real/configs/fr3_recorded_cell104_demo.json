@@ -1,0 +1,14 @@
+{
+  "description": "Non-scored end-to-end controller validation at recorded cell 104. Do not use as a held-out evaluation result.",
+  "positions": [
+    {
+      "eval_id": "C104",
+      "role": "controller_validation_only",
+      "source_cells": [104],
+      "x": 0.4373,
+      "y": -0.3552,
+      "table_z": 0.0252,
+      "notes": "Recorded cell 104; strongest 7999 replay-agreement score."
+    }
+  ]
+}

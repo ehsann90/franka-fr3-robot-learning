@@ -1,7 +1,11 @@
 # FR3 Recording Guide
 
-This guide describes how to collect new real-robot pick-and-place
-demonstrations for the FR3 dataset. Run commands from `fr3_real/`. Collection
+This guide describes the **cube-to-basket** real-robot demonstrations for the
+released FR3 pick-and-place dataset. It is not the bracket/bolt collection
+procedure. For the bracket, wall-cell, bolt and threading tasks, use the
+[bracket/bolt workflow guide](BRACKET_BOLT_WORKFLOWS.md).
+
+Run commands from `fr3_real/`. Collection
 commands move the arm and gripper. Keep the E-stop reachable, inspect the
 workspace before every confirmation prompt, and stop rather than improvising
 when robot behavior differs from the expected path.

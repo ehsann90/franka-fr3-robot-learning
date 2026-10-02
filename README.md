@@ -1,16 +1,27 @@
 # franka-fr3-robot-learning
 
-Tools for Franka Research 3 robot learning, including real-robot control,
-demonstration collection, grasping and pick-and-place experiments, dataset
-generation, and model training workflows.
+Tools for Franka Research 3 robot learning: cube pick-and-place, bracket
+placement on wall pins, bolt insertion/threading, recording and dataset
+conversion, and policy training/evaluation. These are distinct tasks with
+different action schemas and workcell assumptions.
+
+Start with the [FR3 directory map](fr3_real/README.md). For current bracket,
+wall-cell, and bolt collection, use the
+[bracket/bolt workflow guide](docs/BRACKET_BOLT_WORKFLOWS.md). The
+[recording guide](docs/RECORDING_GUIDE.md) remains the cube-specific workflow.
+The [documentation index](docs/README.md) separates current guides from dated
+runbooks and paper drafts.
 
 ## Released Artifacts
 
 - Model checkpoint: [`pi0.5-fr3-v3-pick-place`](https://huggingface.co/msbutt1/pi05-fr3-v3-12000)
 - LeRobot dataset: [`fr3-pick-place-lerobot`](https://huggingface.co/datasets/msbutt1/fr3-pick-place-lerobot)
 
-The current live-evaluation workflow assumes the pi0.5-DROID action format:
-seven FR3 joint velocities plus one gripper-closedness value at 15 Hz.
+The released cube policy and the dated bracket evaluation use pi0.5-DROID
+joint-velocity actions: seven FR3 joint velocities plus gripper closedness at
+15 Hz. The bracket/bolt autonomous collection config instead specifies
+`droid_joint_position` (achieved-next absolute joints and gripper closedness).
+Choose the schema for the intended policy; do not combine them silently.
 
 ## Repository Layout
 
@@ -21,17 +32,34 @@ The `fr3_real/` tools are grouped by operational purpose:
 - `model-running/`: guarded live policy execution, streaming validation, gripper control, recovery, reset, and the local streaming controller.
 - `data-pipeline/`: recording conversion, dataset staging, cell tracking, manifest generation, and normalization statistics.
 - `training/`: OpenPI/pi0.5 training launchers, dataset preparation, checkpoint preparation, and cluster/Slurm scripts.
-- `configs/`: manifests, cell trackers, calibration points, environment files, and run-selection metadata.
+- `configs/`: workcell-specific task configs, trackers, and run-selection metadata.
+- `calibration/`: measured geometry and calibration evidence for this workcell.
+- `recordings/`, `diagnostics/`, `eval_logs/`: generated episodes and trial evidence; not source code.
 
 Shared modules such as `franka_motion.py` and `grid_utils.py` remain at the
 `fr3_real/` root because multiple groups import them directly.
 
-For a catalog of every operational tool, its purpose, and its normal entry
-point, see [the FR3 Script Guide](docs/SCRIPT_GUIDE.md).
+For operational entry points, see [the FR3 Script Guide](docs/SCRIPT_GUIDE.md).
+The bracket/wall-cell tools remain in their existing directories because
+scripts and configs refer to those paths; the new guides organize them without
+renaming commissioned trajectories or raw data.
 
 ## Dataset Collection
 
-The dataset is built from successful real-robot demonstrations. For each
+### Bracket and bolt
+
+The bracket task records placement from a selected table cell onto fixed wall
+pins. Its wall-to-cell transfer is unrecorded setup. The bolt task starts at
+S1, places the bolt into the mounted bracket, and can end at `THREAD_READY` for
+a hybrid policy or include guarded threading for a full-policy view. The
+bracket-specific workbook, wall keep-out, raw episodes, conversion views, and
+current commands are documented in the
+[bracket/bolt workflow guide](docs/BRACKET_BOLT_WORKFLOWS.md). A physical
+controller completion is not a training-data acceptance decision.
+
+### Cube pick-and-place
+
+The released cube dataset is built from successful real-robot demonstrations. For each
 demonstration, the collection script moves a cube from the basket to a selected
 table cell, returns the arm to a consistent start pose, then records the robot
 as it picks that cube and places it back in the basket. Two RealSense cameras,
@@ -66,6 +94,11 @@ host-specific prerequisites outside Python: a compatible `libfranka`,
 RealSense/librealsense access and USB permissions, and Linux headers when a
 package needs to build native input bindings.
 
+The local FR3 streamers specifically require the active-control libfranka
+development headers, including `franka/active_control_base.h`. A normal
+`franky` Python import is not sufficient to prove that this C++ requirement is
+installed. The readiness checker reports this separately before live use.
+
 For a fresh workstation, use the non-destructive bootstrap and then inspect
 the readiness report before attempting any live command:
 
@@ -99,9 +132,10 @@ bash setup/bootstrap_fr3_environment.sh
 conda run -n fr3-recording python setup/verify_fr3_setup.py
 ```
 
-Before a live evaluation, the workstation must have a compatible `libfranka`,
-FCI enabled in Franka Desk, RealSense USB permissions, the two camera serials
-configured in the scripts, a built local streamer, and a calibrated
+Before a live evaluation, the workstation must have a compatible active-control
+`libfranka` development installation, FCI enabled in Franka Desk, RealSense USB
+permissions, the two camera serials configured in the scripts, a built local
+streamer, and a calibrated
 `configs/probed_points.json`. The calibration file is robot/workcell-specific:
 do not reuse it blindly on another physical setup.
 

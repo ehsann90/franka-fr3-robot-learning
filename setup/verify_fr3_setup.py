@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import importlib
+import os
 import shutil
 import socket
 import sys
@@ -40,6 +41,19 @@ def port_open(host: str, port: int, timeout: float = 0.5) -> bool:
             return True
     except OSError:
         return False
+
+
+def find_header(relative_path: str) -> Path | None:
+    """Find a C++ header in standard, Conda, or CMake-prefix include roots."""
+    prefixes = [Path("/usr"), Path("/usr/local"), Path(sys.prefix)]
+    for value in os.environ.get("CMAKE_PREFIX_PATH", "").split(os.pathsep):
+        if value:
+            prefixes.append(Path(value))
+    for prefix in prefixes:
+        candidate = prefix / "include" / relative_path
+        if candidate.is_file():
+            return candidate
+    return None
 
 
 def main() -> None:
@@ -80,6 +94,14 @@ def main() -> None:
     )
     passed &= check("cmake", shutil.which("cmake") is not None, shutil.which("cmake") or "not on PATH")
     passed &= check("C++ compiler", shutil.which("g++") is not None, shutil.which("g++") or "not on PATH")
+    active_control_header = find_header("franka/active_control_base.h")
+    passed &= check(
+        "libfranka active-control headers",
+        active_control_header is not None,
+        str(active_control_header)
+        if active_control_header
+        else "missing franka/active_control_base.h; install the libfranka version required by the streamer",
+    )
     print(f"[INFO   ] robot target: {args.robot_ip} (not contacted)")
 
     if args.check_policy_server:

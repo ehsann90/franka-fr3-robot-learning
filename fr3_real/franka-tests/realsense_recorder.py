@@ -66,18 +66,41 @@ class RealSenseEpisodeRecorder:
         self.action_records = []
         self.gripper_command_width: float | None = None
         self.latest_gripper_state: dict = {}
+        self.manual_gripper_state_enabled = False
 
     def _discover_serials(self) -> list[str]:
         context = self.rs.context()
         return [device.get_info(self.rs.camera_info.serial_number) for device in context.devices]
 
-    def attach_robot(self, robot, gripper=None, sample_hz: float = 30.0) -> None:
+    @staticmethod
+    def _read_gripper_state_with_retry(gripper, attempts: int = 3, delay_s: float = 0.1):
+        last_error: Exception | None = None
+        for attempt in range(attempts):
+            try:
+                return gripper.state
+            except Exception as error:  # Franky native exceptions do not share one stable Python base class.
+                last_error = error
+                if attempt + 1 < attempts:
+                    time.sleep(delay_s)
+        raise RuntimeError(f"could not read gripper state after {attempts} attempts: {last_error}") from last_error
+
+    def attach_robot(
+        self,
+        robot,
+        gripper=None,
+        sample_hz: float = 30.0,
+        gripper_command_source: str = "explicit",
+    ) -> dict:
+        if gripper_command_source not in {"explicit", "unavailable"}:
+            raise ValueError("gripper_command_source must be 'explicit' or 'unavailable'")
         self.robot = robot
         self.gripper = gripper
         self.state_sample_hz = sample_hz
         if gripper is not None:
-            gripper_state = gripper.state
-            self.gripper_command_width = float(gripper_state.width)
+            gripper_state = self._read_gripper_state_with_retry(gripper)
+            self.gripper_command_width = (
+                float(gripper_state.width) if gripper_command_source == "explicit" else None
+            )
             self.latest_gripper_state = {
                 "gripper_state_time_ns": time.time_ns(),
                 "gripper_width": float(gripper_state.width),
@@ -89,10 +112,115 @@ class RealSenseEpisodeRecorder:
             f"q={len(sample['q'])} dq_d={len(sample['dq_d'])} "
             f"gripper_width={sample.get('gripper_width', float('nan')):.4f}"
         )
+        if self.active:
+            self.resume_robot_state_sampling()
+        return sample
+
+    def pause_robot_state_sampling(self) -> None:
+        """Stop only the robot-state sampler while cameras keep recording.
+
+        Direct libfranka controllers require exclusive ownership of the arm
+        connection. Production episode orchestrators use this boundary to
+        release the Python Robot object without interrupting either camera.
+        """
+        self.state_stop_event.set()
+        if self.state_thread is not None:
+            self.state_thread.join(timeout=3.0)
+            if self.state_thread.is_alive():
+                raise RuntimeError("robot-state sampler did not stop")
+        self.state_thread = None
+        self.robot = None
+
+    def resume_robot_state_sampling(self) -> None:
+        """Resume state sampling after ``attach_robot`` during an episode."""
+        if not self.active or self.robot is None:
+            return
+        if self.state_thread is not None and self.state_thread.is_alive():
+            return
+        self.state_stop_event.clear()
+        self.state_thread = threading.Thread(
+            target=self._sample_robot_state_loop,
+            daemon=True,
+        )
+        self.state_thread.start()
+
+    def append_external_state_samples(self, samples: list[dict]) -> None:
+        """Merge timestamped states captured by an exclusive direct controller."""
+        if not self.active:
+            raise RuntimeError("external states require an active episode")
+        for sample in samples:
+            if "time_ns" not in sample or len(sample.get("q", [])) != 7:
+                raise ValueError("external state samples require time_ns and q[7]")
+        self.state_samples.extend(samples)
+        self.state_samples.sort(key=lambda sample: int(sample["time_ns"]))
 
     def set_gripper_command(self, width: float, command: str) -> None:
         self.gripper_command_width = float(width)
         self.log_action(command, {"target_width": self.gripper_command_width})
+
+    def set_manual_gripper_state(
+        self, width: float, is_grasped: bool, event: str
+    ) -> None:
+        """Persist an operator-marked Hand state without opening a Hand client.
+
+        Desk/Pilot must retain exclusive Hand access during kinesthetic capture.
+        The state is piecewise constant between explicit operator markers and is
+        labeled as reconstructed metadata rather than a measured Hand command.
+        """
+        now_ns = time.time_ns()
+        self.manual_gripper_state_enabled = True
+        self.gripper_command_width = float(width)
+        self.latest_gripper_state = {
+            "gripper_state_time_ns": now_ns,
+            "gripper_width": float(width),
+            "gripper_is_grasped": bool(is_grasped),
+        }
+        self.log_action(
+            event,
+            {
+                "target_width": float(width),
+                "is_grasped": bool(is_grasped),
+                "source": "operator_marked_discrete_state",
+            },
+        )
+
+    def set_achieved_gripper_state(
+        self,
+        width: float,
+        is_grasped: bool,
+        event: str,
+        *,
+        command_width: float,
+        operator_confirmed: bool = False,
+    ) -> None:
+        """Persist a measured Hand state immediately after an automatic command.
+
+        This avoids a concurrent Hand-state polling thread while the main thread
+        owns gripper commands. The state remains piecewise constant between the
+        explicitly measured command boundaries, and the raw action record keeps
+        the command width distinct from the achieved width.
+        """
+        now_ns = time.time_ns()
+        self.manual_gripper_state_enabled = True
+        self.gripper_command_width = float(command_width)
+        self.latest_gripper_state = {
+            "gripper_state_time_ns": now_ns,
+            "gripper_width": float(width),
+            "gripper_is_grasped": bool(is_grasped),
+        }
+        self.log_action(
+            event,
+            {
+                "target_width": float(command_width),
+                "achieved_width": float(width),
+                "is_grasped": bool(is_grasped),
+                "source": (
+                    "automatic_command_measured_state_with_operator_confirmation"
+                    if operator_confirmed
+                    else "automatic_command_measured_achieved_state"
+                ),
+            },
+        )
 
     def start_episode(self, episode_name: str, metadata: dict) -> Path:
         if self.active:
@@ -190,12 +318,15 @@ class RealSenseEpisodeRecorder:
             "ee_translation": self._as_float_list(pose.translation),
             "ee_quaternion": self._as_float_list(pose.quaternion),
             "O_T_EE": self._as_float_list(state.O_T_EE),
+            "O_T_EE_c": self._as_float_list(state.O_T_EE_c),
             "O_T_EE_d": self._as_float_list(state.O_T_EE_d),
             "O_dP_EE_d": self._as_float_list(state.O_dP_EE_d),
             "O_F_ext_hat_K": self._as_float_list(state.O_F_ext_hat_K),
+            "K_F_ext_hat_K": self._as_float_list(state.K_F_ext_hat_K),
+            "EE_T_K": self._as_float_list(state.EE_T_K),
             "control_command_success_rate": float(state.control_command_success_rate),
         }
-        if self.gripper is not None:
+        if self.gripper is not None or self.manual_gripper_state_enabled:
             sample.update(self.latest_gripper_state)
             sample["gripper_command_width"] = self.gripper_command_width
         return sample
@@ -324,14 +455,18 @@ class RealSenseEpisodeRecorder:
                 "ee_translation",
                 "ee_quaternion",
                 "O_T_EE",
+                "O_T_EE_c",
                 "O_T_EE_d",
                 "O_dP_EE_d",
                 "O_F_ext_hat_K",
+                "K_F_ext_hat_K",
+                "EE_T_K",
                 "control_command_success_rate",
             ]
             for key in keys:
-                arrays[f"state_{key}"] = np.asarray([sample[key] for sample in self.state_samples])
-            if "gripper_width" in self.state_samples[0]:
+                if all(key in sample for sample in self.state_samples):
+                    arrays[f"state_{key}"] = np.asarray([sample[key] for sample in self.state_samples])
+            if all("gripper_width" in sample for sample in self.state_samples):
                 arrays["state_gripper_width"] = np.asarray([sample["gripper_width"] for sample in self.state_samples])
                 arrays["state_gripper_state_time_ns"] = np.asarray(
                     [sample["gripper_state_time_ns"] for sample in self.state_samples], dtype=np.int64

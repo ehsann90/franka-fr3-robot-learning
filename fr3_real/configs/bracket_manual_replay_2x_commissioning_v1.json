@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "robot_ip": "172.16.0.2",
+  "bracket_slot": "B1",
+  "note": "Arm-only (no Hand actions) commissioning for the bracket_manual episode 20260816_145452_bracket_manual_0003_B1_CENTER IK candidate. Mirrors full_assembly_2x_commissioning_v1.json's non-object-aware flow. Each stage's execution_enabled starts false and must be deliberately flipped after its own prepared-controller preview passes.",
+  "candidate": "recordings/bracket_manual_replay_ik_preview_v1/20260816_145621_bracket_manual_exact_pose_rebalanced_ik_candidate.csv",
+  "binary": "model-running/streaming/build/fr3_retimed_joint_trajectory",
+  "output_dir": "recordings/bracket_manual_replay_2x_trials_v1",
+  "command_rate_hz": 15.0,
+  "playback_time_scale": 2.0,
+  "offline_validation_rate_hz": 1000.0,
+  "velocity_cap_rad_s": 1.2,
+  "acceleration_cap_rad_s2": 4.0,
+  "jerk_cap_rad_s3": 40.0,
+  "idle_edge_trim": {
+    "enabled": false
+  },
+  "controller_start_tolerance_rad": 0.005,
+  "reset_relative_dynamics_factor": 0.05,
+  "reset_maximum_joint_delta_rad": 0.5,
+  "reset_maximum_segments": 3,
+  "reset_terminal_tolerance_rad": 0.01,
+  "reset_workspace_bounds_m": {
+    "min_xyz": [0.21, -0.5, 0.005],
+    "max_xyz": [0.7, 0.35, 0.27]
+  },
+  "minimum_open_hand_width_m": 0.038,
+  "minimum_open_hand_width_basis": "the 0.0799 m figure in bracket_manual_recording_v1.json assumes standard Franka fingers; the fingers currently mounted read consistently at ~0.041633 m fully open (confirmed by the operator on 2026-08-16), so 0.038 m leaves a few mm of margin below that instead of falsely flagging these narrower fingers as closed",
+  "maximum_physical_trials_per_stage": 5,
+  "maximum_physical_trials_per_stage_basis": "raised from 1 on 2026-08-16 after a real pick-and-place attempt needed a retry (grasp confirmation was skipped, so transport ran empty-handed) -- each stage's arm motion itself already passed cleanly once, this only allows a few more full-sequence attempts rather than hard-stopping after the first",
+  "collision_reflex_settings": "UNCHANGED",
+  "gripper": {
+    "enabled": true,
+    "open_speed_m_s": 0.05,
+    "minimum_open_width_m": 0.038,
+    "monitor_hz": 10.0,
+    "grasp_target_width_m": 0.03,
+    "grasp_speed_m_s": 0.02,
+    "grasp_force_n": 15.0,
+    "epsilon_inner_m": 0.01,
+    "epsilon_outer_m": 0.01,
+    "held_width_min_m": 0.02,
+    "held_width_max_m": 0.04,
+    "grasp_pose_tolerance_rad": 0.01,
+    "basis": "grasp_target_width_m/grasp_speed_m_s/grasp_force_n/epsilon values carried over from piloted_bracket_trajectory_v1.json's object_episode_execution.gripper block (proven on episode 9); held_width_max_m corrected from that config's stale 0.05 down to 0.04 (target 0.03 + epsilon_outer 0.01) since the currently mounted fingers only open to ~0.0416 m, confirmed same fingers by the operator on 2026-08-16, not a recalibration -- enabled stays false until a live grasp trial passes",
+    "maximum_physical_trials": 1
+  },
+  "commissioning_basis": {
+    "offline_validation_date": "2026-08-16",
+    "offline_result": "all three stages pass velocity/acceleration/jerk caps at playback_time_scale 1.6 or slower; 2.0 chosen here for extra margin",
+    "reset_basis": "approach_open stage measured a 0.230975 rad max joint delta and 0.000014 m predicted target FK discrepancy under the read-only reset preview, both well inside these bounds"
+  },
+  "stages": {
+    "approach_open": {
+      "execution_enabled": true,
+      "execution_enabled_basis": "prepared controller preview passed 2026-08-16: live start error 0.000179 rad, baseline |dq| 0.003827 rad/s, predicted path within stage workspace bounds, offline caps passed at playback_time_scale 2.0",
+      "workspace_bounds_m": {
+        "min_xyz": [0.21, -0.53, -0.04],
+        "max_xyz": [0.71, -0.01, 0.22]
+      }
+    },
+    "transport_place_closed": {
+      "execution_enabled": true,
+      "execution_enabled_basis": "prepared controller preview passed 2026-08-16: live start error 0.000100 rad, baseline |dq| 0.004502 rad/s, predicted path within stage workspace bounds, offline caps passed at playback_time_scale 2.0",
+      "workspace_bounds_m": {
+        "min_xyz": [0.21, -0.52, -0.04],
+        "max_xyz": [0.69, 0.38, 0.26]
+      }
+    },
+    "retreat_open": {
+      "execution_enabled": true,
+      "execution_enabled_basis": "prepared controller preview passed 2026-08-16: live start error 0.000091 rad, baseline |dq| 0.004000 rad/s, predicted path within stage workspace bounds, offline caps passed at playback_time_scale 2.0",
+      "workspace_bounds_m": {
+        "min_xyz": [0.57, -0.15, 0.00],
+        "max_xyz": [0.75, 0.38, 0.28]
+      }
+    }
+  }
+}

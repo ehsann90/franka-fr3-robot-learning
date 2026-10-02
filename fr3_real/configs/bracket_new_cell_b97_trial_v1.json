@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "robot_ip": "172.16.0.2",
+  "bracket_slot": "B97",
+  "calibration_only": true,
+  "note": "ONE SUPERVISED P01_02 PHYSICAL TRIAL: B72 cell-side path adapted to the fixed B93 wall pose. Setup diagnostics only; not a dataset episode.",
+  "candidate": "diagnostics/bracket_new_cell_p01_02_v1/translated_bracket_ik_candidate.csv",
+  "binary": "model-running/streaming/build/fr3_retimed_joint_trajectory_bracket_highcap_v2",
+  "output_dir": "diagnostics/bracket_new_cell_p01_02_v1",
+  "command_rate_hz": 15.0,
+  "playback_time_scale": 2.2222222222222223,
+  "inverse_setup_motion": {
+    "execution_enabled": true,
+    "maximum_physical_trials": 1,
+    "playback_time_scales": {
+      "wall_approach_open": 3.3333333333333335,
+      "wall_to_cell_held": 4.444444444444445,
+      "cell_retreat_open": 3.3333333333333335
+    },
+    "cell_release_open_speed_m_s": 0.01,
+    "cell_settle_before_open_s": 1.0,
+    "cell_settle_after_open_s": 0.5
+  },
+  "offline_validation_rate_hz": 1000.0,
+  "velocity_cap_rad_s": 1.2,
+  "acceleration_cap_rad_s2": 4.0,
+  "jerk_cap_rad_s3": 40.0,
+  "idle_edge_trim": {
+    "enabled": true,
+    "interval_velocity_threshold_rad_s": 0.005,
+    "source_time_buffer_s": 0.2
+  },
+  "controller_start_tolerance_rad": 0.005,
+  "reset_relative_dynamics_factor": 0.05,
+  "reset_maximum_joint_delta_rad": 0.5,
+  "reset_maximum_segments": 3,
+  "reset_terminal_tolerance_rad": 0.01,
+  "reset_workspace_bounds_m": {
+    "min_xyz": [0.21, -0.53, -0.04],
+    "max_xyz": [0.73, 0.40, 0.32]
+  },
+  "minimum_open_hand_width_m": 0.038,
+  "maximum_physical_trials_per_stage": 1,
+  "collision_reflex_settings": "UNCHANGED",
+  "gripper": {
+    "enabled": true,
+    "open_speed_m_s": 0.05,
+    "minimum_open_width_m": 0.038,
+    "monitor_hz": 10.0,
+    "grasp_target_width_m": 0.03,
+    "grasp_speed_m_s": 0.02,
+    "grasp_force_n": 15.0,
+    "epsilon_inner_m": 0.01,
+    "epsilon_outer_m": 0.01,
+    "held_width_min_m": 0.02,
+    "held_width_max_m": 0.04,
+    "grasp_pose_tolerance_rad": 0.01,
+    "maximum_physical_trials": 1
+  },
+  "stages": {
+    "approach_open": {
+      "execution_enabled": true,
+      "workspace_bounds_m": {
+        "min_xyz": [0.21, -0.53, -0.04],
+        "max_xyz": [0.73, 0.40, 0.32]
+      }
+    },
+    "transport_place_closed": {
+      "execution_enabled": true,
+      "workspace_bounds_m": {
+        "min_xyz": [0.21, -0.53, -0.04],
+        "max_xyz": [0.73, 0.40, 0.32]
+      }
+    },
+    "retreat_open": {
+      "execution_enabled": true,
+      "workspace_bounds_m": {
+        "min_xyz": [0.21, -0.53, -0.04],
+        "max_xyz": [0.73, 0.40, 0.32]
+      }
+    }
+  }
+}

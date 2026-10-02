@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "robot_ip": "172.16.0.2",
+  "bracket_slot": "B2",
+  "note": "CANDIDATE: 0.8x bracket playback speed for B2, represented by playback_time_scale 1.25. This candidate requires a fresh live preview before execution.",
+  "candidate": "recordings/bracket_manual_replay_ik_preview_v1/20260816_171058_bracket_manual_exact_pose_rebalanced_ik_candidate.csv",
+  "binary": "model-running/streaming/build/fr3_retimed_joint_trajectory_bracket_highcap",
+  "output_dir": "recordings/bracket_manual_replay_1x_highcap_trials_v1",
+  "command_rate_hz": 15.0,
+  "playback_time_scale": 1.25,
+  "offline_validation_rate_hz": 1000.0,
+  "velocity_cap_rad_s": 1.2,
+  "acceleration_cap_rad_s2": 10.0,
+  "jerk_cap_rad_s3": 160.0,
+  "idle_edge_trim": {
+    "enabled": true,
+    "interval_velocity_threshold_rad_s": 0.005,
+    "source_time_buffer_s": 0.2
+  },
+  "controller_start_tolerance_rad": 0.005,
+  "reset_relative_dynamics_factor": 0.05,
+  "reset_maximum_joint_delta_rad": 0.5,
+  "reset_maximum_segments": 3,
+  "reset_terminal_tolerance_rad": 0.01,
+  "reset_workspace_bounds_m": {
+    "min_xyz": [0.21, -0.5, 0.005],
+    "max_xyz": [0.7, 0.4, 0.32]
+  },
+  "minimum_open_hand_width_m": 0.038,
+  "maximum_physical_trials_per_stage": 3,
+  "collision_reflex_settings": "UNCHANGED",
+  "gripper": {
+    "enabled": true,
+    "open_speed_m_s": 0.05,
+    "minimum_open_width_m": 0.038,
+    "monitor_hz": 10.0,
+    "grasp_target_width_m": 0.03,
+    "grasp_speed_m_s": 0.02,
+    "grasp_force_n": 15.0,
+    "epsilon_inner_m": 0.01,
+    "epsilon_outer_m": 0.01,
+    "held_width_min_m": 0.02,
+    "held_width_max_m": 0.04,
+    "grasp_pose_tolerance_rad": 0.01,
+    "basis": "same calibrated grasp parameters proven live on B1/B2 2026-08-16; unaffected by the raised arm-motion caps",
+    "maximum_physical_trials": 3
+  },
+  "commissioning_basis": {
+    "offline_validation_date": "2026-08-16",
+    "offline_result": "PENDING -- must be run against fr3_retimed_joint_trajectory_bracket_highcap before any live step"
+  },
+  "stages": {
+    "approach_open": {
+      "execution_enabled": true,
+      "execution_enabled_basis": "prepared controller preview passed 2026-08-19 at playback_time_scale 1.25 with bracket present; live start error 0.000355 rad, baseline |dq| 0.004598 rad/s, predicted path within workspace bounds, offline caps (1.2/10.0/160.0) passed.",
+      "workspace_bounds_m": {
+        "min_xyz": [0.21, -0.42, -0.04],
+        "max_xyz": [0.71, 0.00, 0.31]
+      }
+    },
+    "transport_place_closed": {
+      "execution_enabled": true,
+      "execution_enabled_basis": "prepared controller preview passed 2026-08-19 at playback_time_scale 1.25 with bracket held; offline caps (1.2/10.0/160.0) passed.",
+      "workspace_bounds_m": {
+        "min_xyz": [0.21, -0.41, -0.04],
+        "max_xyz": [0.69, 0.38, 0.25]
+      }
+    },
+    "retreat_open": {
+      "execution_enabled": true,
+      "execution_enabled_basis": "prepared controller preview passed 2026-08-19 at playback_time_scale 1.25 with bracket present; live start error 0.000319 rad, baseline |dq| 0.004481 rad/s, predicted path within workspace bounds, offline caps (1.2/10.0/160.0) passed.",
+      "workspace_bounds_m": {
+        "min_xyz": [0.57, -0.12, 0.00],
+        "max_xyz": [0.75, 0.38, 0.29]
+      }
+    }
+  }
+}

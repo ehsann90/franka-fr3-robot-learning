@@ -1,0 +1,20 @@
+{
+  "description": "Single manually placed random held-out target.",
+  "training_cells_source": "random_probe/probed_points.json",
+  "total_positions": 1,
+  "trials_per_position": 1,
+  "total_trials": 1,
+  "positions": [
+    {
+      "x": 0.5556,
+      "y": -0.2189,
+      "table_z": 0.0223,
+      "axis": "manual_random",
+      "source_cells": [75, 76],
+      "eval_id": "R01",
+      "trials": 1,
+      "role": "manual_random_validation",
+      "notes": "Cube is manually placed at a probed unseen location; setup motion is skipped."
+    }
+  ]
+}

@@ -60,6 +60,9 @@ def main() -> None:
     parser.add_argument("--server-port", type=int, default=8000)
     parser.add_argument("--dynamics-factor", type=float, default=0.085)
     parser.add_argument("--min-z", type=float, default=0.020)
+    parser.add_argument("--replan-at-step", type=int, default=8)
+    parser.add_argument("--warmup-iterations", type=int, default=30)
+    parser.add_argument("--max-steady-latency", type=float, default=0.55)
     parser.add_argument("--streamer-cpu", default="2")
     parser.add_argument("--validator-cpu", default="3")
     parser.add_argument("--feeder-cpus", default="4-15")
@@ -121,6 +124,12 @@ def main() -> None:
             str(args.dynamics_factor),
             "--min-z",
             str(args.min_z),
+            "--replan-at-step",
+            str(args.replan_at_step),
+            "--warmup-iterations",
+            str(args.warmup_iterations),
+            "--max-steady-latency",
+            str(args.max_steady_latency),
             "--streamer-cpu",
             args.streamer_cpu,
             "--validator-cpu",

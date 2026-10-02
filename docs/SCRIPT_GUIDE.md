@@ -1,6 +1,9 @@
 # FR3 Script Guide
 
-Run commands below from `fr3_real/` unless a command says otherwise. Every
+Run commands below from `fr3_real/` unless a command says otherwise. This is
+an entry-point guide, not an inventory of every experimental script. The
+[bracket/bolt workflow guide](BRACKET_BOLT_WORKFLOWS.md) covers the current
+wall-cell loop, task boundaries and action-schema differences. Every
 executable also has a purpose and usage line at its own top of file; use
 `python <path> --help` before a first run. Scripts in `franka-tests/` and
 `model-running/` can affect hardware. Keep the E-stop reachable and read the
@@ -64,6 +67,36 @@ policy and are not part of the current joint-velocity deployment path.
 warmup, recorded-action replay, and dry-run protocol test. Build the C++
 streamer there once with CMake, then use `--help` on each Python launcher.
 
+### Bracket, wall-cell and bolt entry points
+
+| Script | Role |
+| --- | --- |
+| `franka-tests/record_manual_bracket_demo.py` | Human-piloted bracket source with camera/state recording; `OUTER` is a viewpoint label. |
+| `franka-tests/record_manual_bolt_demo.py` | Human-piloted bolt source with operator-marked Hand events. |
+| `model-running/record_bracket_workspace_cell_loop.py` | Bracket-specific proposal tracker, wall-to-cell setup, and cell-to-wall camera recording. |
+| `model-running/prepare_bracket_new_cell_path.py` | Build translated candidate targets and wall keep-out audit. |
+| `model-running/prepare_bracket_wall_cell_cycle.py` | Offline inverse setup audit. |
+| `model-running/run_bracket_wall_to_cell.py` | Physical unrecorded wall-to-cell setup, followed by placement capture unless setup-only. |
+| `model-running/record_autonomous_bolt_engagement_demo.py` | Main commissioned bracket-only or full-assembly recorder. |
+| `model-running/commission_full_assembly_arm_2x.py` | Earlier smooth-arm commissioning and offline checks; not the wall-cell loop. |
+| `model-running/run_bolt_thread_drive_direct.py` | Guarded direct combined axial/yaw threading launcher. |
+
+The autonomous arm stages use a direct 1 kHz clamped-cubic controller; the
+speed flags `--two-x`, `--three-x`, and `--four-x` select configured profiles,
+which are still limited by stage caps. The full-assembly task config currently
+describes 85° × 3 and 50° × 3 threading windows. Do not assume that a speed
+name or measured yaw proves physical thread engagement.
+
+For the bracket-specific tracker without robot connection:
+
+```bash
+python model-running/record_bracket_workspace_cell_loop.py --preview-only
+```
+
+For a supervised one-cell run, see the exact command and retry semantics in
+[the workflow guide](BRACKET_BOLT_WORKFLOWS.md). Use `--help` and inspect the
+selected generated config before a live command.
+
 ## Data And Training
 
 | Area | Purpose | Entry point |
@@ -86,7 +119,7 @@ OpenPI environment, not the robot-control Conda environment.
 | Path | Purpose |
 | --- | --- |
 | `setup/bootstrap_fr3_environment.sh` | Create/install the robot-control Python environment. |
-| `setup/verify_fr3_setup.py` | Verify local imports, calibration, build tools, and optionally policy-server TCP access. |
+| `setup/verify_fr3_setup.py` | Verify local imports, calibration, active-control libfranka headers, build tools, and optionally policy-server TCP access. |
 | `configs/` | Workcell calibration, manifests, trackers, and environment specification. |
 | `requirements/fr3-recording.txt` | Pip dependencies for the robot-control environment. |
 

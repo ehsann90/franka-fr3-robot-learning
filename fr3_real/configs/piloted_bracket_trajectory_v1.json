@@ -1,0 +1,263 @@
+{
+  "schema_version": 1,
+  "task_name": "bracket",
+  "language_prompt": "place the 3d printed bracket onto the wall alignment pins",
+  "robot_ip": "172.16.0.2",
+  "output_dir": "recordings/piloted_bracket_trajectories_v1",
+  "robot_sample_hz": 50.0,
+  "gripper_sample_hz": 10.0,
+  "piloted_gripper_capture": {
+    "state_client_enabled": false,
+    "control_source": "supported Franka Desk/Pilot controls",
+    "event_capture": "ordered semantic markers entered while the arm is stationary"
+  },
+  "allowed_bracket_slots": ["B1"],
+  "allowed_grasp_styles": ["HIGH", "CENTER", "LOW"],
+  "calibration_file": "calibration/bracket_expert_v1.json",
+  "replay": {
+    "enabled": false,
+    "note": "Full replay and all gripper actions remain disabled. Only the empty-workspace approach_open arm stage is commissioned separately below.",
+    "command_rate_hz": 15,
+    "workspace_bounds_m": "NOT_CALIBRATED",
+    "joint_velocity_cap_rad_s": "NOT_CALIBRATED",
+    "start_joint_tolerance_rad": "NOT_CALIBRATED",
+    "gripper_open_width_m": "NOT_CALIBRATED",
+    "gripper_speed_m_s": "NOT_CALIBRATED",
+    "gripper_force_n": "NOT_CALIBRATED",
+    "reset_to_start": {
+      "enabled": true,
+      "relative_dynamics_factor": 0.05,
+      "joint_margin_rad": 0.12,
+      "maximum_joint_delta_rad": 0.5,
+      "workspace_bounds_m": {
+        "min_xyz": [0.59, -0.11, 0.16],
+        "max_xyz": [0.66, -0.04, 0.22]
+      },
+      "target_fk_error_limit_m": 0.005,
+      "commissioning_basis": {
+        "trajectory": "20260812_115247_bracket_pilot_0004_B1_CENTER",
+        "preview_max_joint_delta_rad": 0.45629,
+        "preview_path_xyz_min": [0.61115, -0.08396, 0.18319],
+        "preview_path_xyz_max": [0.61509, -0.06979, 0.19647],
+        "preview_target_fk_discrepancy_m": 0.0,
+        "retreat_endpoint_reset_preview": {
+          "maximum_joint_delta_rad": 0.257941,
+          "path_xyz_min": [0.61509, -0.09014, 0.18752],
+          "path_xyz_max": [0.65237, -0.08389, 0.21771],
+          "target_fk_discrepancy_m": 0.0
+        },
+        "dynamics_and_joint_margin_source": "existing reset_to_recorded_policy_start.py defaults"
+      }
+    },
+    "stage_execution": {
+      "full_arm_no_gripper": {
+        "enabled": false,
+        "trajectory": "20260812_115247_bracket_pilot_0004_B1_CENTER",
+        "empty_workspace_only": true,
+        "gripper_commands_enabled": false,
+        "camera_recording_enabled": false,
+        "playback_time_scale": 2.0,
+        "relative_dynamics_factor": 0.5,
+        "joint_margin_rad": 0.12,
+        "start_joint_tolerance_rad": 0.005,
+        "terminal_joint_tolerance_rad": 0.02,
+        "maximum_scaled_target_velocity_rad_s": 1.0,
+        "maximum_target_step_rad": 0.12,
+        "workspace_bounds_m": {
+          "min_xyz": [0.21, -0.5, 0.005],
+          "max_xyz": [0.7, 0.35, 0.27]
+        },
+        "maximum_fk_path_error_m": 0.005,
+        "state_timeout_s": 140.0,
+        "commissioning_basis": {
+          "source_duration_s": 49.65986,
+          "source_peak_joint_velocity_rad_s": 1.86315,
+          "scaled_peak_joint_velocity_rad_s": 0.93158,
+          "source_xyz_min": [0.23269, -0.47886, 0.01185],
+          "source_xyz_max": [0.67658, 0.33259, 0.24668],
+          "purpose": "disabled after raw 2x velocity targets triggered a Franka velocity-discontinuity reflex"
+        }
+      },
+      "approach_open": {
+        "enabled": true,
+        "trajectory": "20260812_115247_bracket_pilot_0004_B1_CENTER",
+        "empty_workspace_only": true,
+        "gripper_commands_enabled": false,
+        "camera_recording_enabled": false,
+        "playback_time_scale": 4.0,
+        "relative_dynamics_factor": 0.3,
+        "joint_margin_rad": 0.12,
+        "start_joint_tolerance_rad": 0.005,
+        "terminal_joint_tolerance_rad": 0.02,
+        "maximum_scaled_target_velocity_rad_s": 0.5,
+        "maximum_target_step_rad": 0.12,
+        "workspace_bounds_m": {
+          "min_xyz": [0.21, -0.5, 0.005],
+          "max_xyz": [0.64, -0.06, 0.24]
+        },
+        "maximum_fk_path_error_m": 0.005,
+        "state_timeout_s": 90.0,
+        "commissioning_basis": {
+          "source_duration_s": 14.78,
+          "source_peak_joint_velocity_rad_s": 1.8631,
+          "source_xyz_min": [0.2327, -0.4789, 0.0119],
+          "source_xyz_max": [0.6151, -0.0835, 0.2182],
+          "purpose": "first replay without bracket, cameras, or gripper commands"
+        }
+      },
+      "transport_place_closed": {
+        "enabled": true,
+        "trajectory": "20260812_115247_bracket_pilot_0004_B1_CENTER",
+        "empty_workspace_only": true,
+        "gripper_commands_enabled": false,
+        "camera_recording_enabled": false,
+        "playback_time_scale": 4.0,
+        "relative_dynamics_factor": 0.3,
+        "joint_margin_rad": 0.12,
+        "start_joint_tolerance_rad": 0.005,
+        "terminal_joint_tolerance_rad": 0.02,
+        "maximum_scaled_target_velocity_rad_s": 0.45,
+        "maximum_target_step_rad": 0.11,
+        "workspace_bounds_m": {
+          "min_xyz": [0.21, -0.5, 0.005],
+          "max_xyz": [0.62, 0.35, 0.23]
+        },
+        "maximum_fk_path_error_m": 0.005,
+        "state_timeout_s": 90.0,
+        "commissioning_basis": {
+          "source_duration_s": 12.44,
+          "source_peak_joint_velocity_rad_s": 1.59521,
+          "source_xyz_min": [0.23297, -0.47704, 0.01679],
+          "source_xyz_max": [0.59874, 0.33259, 0.20098],
+          "purpose": "first transport/place replay without bracket, cameras, or gripper commands"
+        }
+      },
+      "retreat_open": {
+        "enabled": true,
+        "trajectory": "20260812_115247_bracket_pilot_0004_B1_CENTER",
+        "empty_workspace_only": true,
+        "gripper_commands_enabled": false,
+        "camera_recording_enabled": false,
+        "playback_time_scale": 4.0,
+        "relative_dynamics_factor": 0.3,
+        "joint_margin_rad": 0.12,
+        "start_joint_tolerance_rad": 0.005,
+        "terminal_joint_tolerance_rad": 0.02,
+        "maximum_scaled_target_velocity_rad_s": 0.3,
+        "maximum_target_step_rad": 0.08,
+        "workspace_bounds_m": {
+          "min_xyz": [0.57, -0.12, 0.04],
+          "max_xyz": [0.7, 0.35, 0.27]
+        },
+        "maximum_fk_path_error_m": 0.005,
+        "state_timeout_s": 60.0,
+        "commissioning_basis": {
+          "source_duration_s": 6.32,
+          "source_peak_joint_velocity_rad_s": 1.0492,
+          "source_xyz_min": [0.59364, -0.09444, 0.05662],
+          "source_xyz_max": [0.67658, 0.33161, 0.24668],
+          "purpose": "first retreat replay without bracket, cameras, or gripper commands"
+        }
+      }
+    },
+    "object_episode_execution": {
+      "enabled": true,
+      "trajectory": "20260812_115247_bracket_pilot_0004_B1_CENTER",
+      "bracket_slot": "B1",
+      "grasp_style": "CENTER",
+      "playback_time_scale": 4.0,
+      "stage_robot_global_dynamics_factor": 1.0,
+      "relative_dynamics_factor": 0.3,
+      "joint_margin_rad": 0.12,
+      "start_joint_tolerance_rad": 0.005,
+      "terminal_joint_tolerance_rad": 0.02,
+      "command_velocity_source": "recorded_scaled",
+      "maximum_scaled_target_velocity_rad_s": 0.5,
+      "maximum_command_velocity_jump_rad_s": 0.19,
+      "maximum_target_step_rad": 0.12,
+      "command_velocity_smoothing_passes": 6,
+      "stage_lead_in_enabled": false,
+      "stage_lead_in_ms": 750,
+      "stage_lead_in_hold_ms": 250,
+      "workspace_bounds_m": {
+        "min_xyz": [0.21, -0.5, 0.005],
+        "max_xyz": [0.7, 0.35, 0.27]
+      },
+      "maximum_fk_path_error_m": 0.005,
+      "state_timeout_s": 140.0,
+      "automatic_reset_to_start": {
+        "enabled": true,
+        "relative_dynamics_factor": 0.05,
+        "joint_margin_rad": 0.12,
+        "maximum_joint_delta_rad": 0.5,
+        "workspace_bounds_m": {
+          "min_xyz": [0.21, -0.5, 0.005],
+          "max_xyz": [0.7, 0.35, 0.27]
+        },
+        "target_fk_error_limit_m": 0.005,
+        "terminal_joint_tolerance_rad": 0.005,
+        "requires_empty_gripper": true,
+        "requires_bracket_removed": true,
+        "commissioning_basis": {
+          "partial_approach_reflex_preview_max_joint_delta_rad": 0.185526,
+          "partial_approach_reflex_preview_path_xyz_min": [0.61509, -0.08396, 0.1846],
+          "partial_approach_reflex_preview_path_xyz_max": [0.63897, -0.03688, 0.18752],
+          "also_contains_previously_validated_retreat_reset_path": true,
+          "workspace_policy": "fixed full B1/CENTER recorded-episode envelope; avoids per-stop bound edits while retaining joint, delta, FK, empty-Hand, and bracket-removed gates",
+          "additional_partial_approach_preview": {
+            "maximum_joint_delta_rad": 0.097355,
+            "path_xyz_min": [0.60447, -0.16308, 0.18752],
+            "path_xyz_max": [0.61509, -0.08396, 0.19632],
+            "target_fk_error_m": 0.0
+          }
+        }
+      },
+      "gripper": {
+        "open_speed_m_s": 0.05,
+        "minimum_open_width_m": 0.07,
+        "grasp_target_width_m": 0.03,
+        "grasp_speed_m_s": 0.02,
+        "grasp_force_n": 15.0,
+        "epsilon_inner_m": 0.01,
+        "epsilon_outer_m": 0.01,
+        "held_width_min_m": 0.02,
+        "held_width_max_m": 0.05,
+        "monitor_hz": 10.0
+      },
+      "camera_recording_enabled": false,
+      "commissioning_basis": {
+        "arm_path": "all three component stages physically passed at 4x slower timing",
+        "requested_timing": "user explicitly requested complete replay at 2x slower timing",
+        "gripper_speed_force_source": "existing commissioned cube grasp tools",
+        "measured_held_bracket_width_m": 0.03806959465146065,
+        "failed_raw_2x_attempt": {
+          "error": "joint_motion_generator_velocity_discontinuity",
+          "arm_motion_started": false,
+          "raw_max_adjacent_velocity_jump_rad_s": 0.373166,
+          "smoothed_max_adjacent_velocity_jump_rad_s": 0.153396,
+          "mitigation": "position-derived smoothed velocities, zero boundary velocity, and stationary lead-in"
+        },
+        "failed_smoothed_low_dynamics_attempt": {
+          "error": "Ruckig ErrorInvalidInput (-100)",
+          "arm_motion_observed": false,
+          "cause": "2x velocity targets were paired with an overly restrictive 0.3 dynamics envelope",
+          "mitigation": "restore 0.5 dynamics and validate commands against live Franky per-joint limits before motion"
+        },
+        "failed_smoothed_2x_with_valid_limits_attempt": {
+          "error": "joint_motion_generator_velocity_discontinuity",
+          "live_absolute_velocity_limits_rad_s": [2.175, 2.175, 2.175, 2.175, 2.61, 2.61, 2.61],
+          "live_effective_velocity_limits_at_0.5_rad_s": [1.0875, 1.0875, 1.0875, 1.0875, 1.305, 1.305, 1.305],
+          "command_peak_rad_s": 0.748575,
+          "status": "2x 15Hz Franky joint-position waypoint profile disabled"
+        },
+        "active_profile": "physically proven 4x component-stage profile: recorded velocities scaled by four, dynamics 0.3, no synthetic lead-in",
+        "integrated_reset_global_dynamics_bug": {
+          "error": "Ruckig ErrorInvalidInput (-100) immediately after successful automatic reset",
+          "cause": "reset left Robot.global relative_dynamics_factor at 0.05, which compounded the stage motion factor 0.3",
+          "fix": "apply 0.05 only to JointMotion reset and explicitly use Robot global factor 1.0 for stage motions"
+        },
+        "first_live_object_run": true
+      }
+    }
+  }
+}

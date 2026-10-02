@@ -1,0 +1,14 @@
+{
+  "description": "Non-scored controller validation at recorded cell 1. Pair with C104 for read-only visual-sensitivity comparison.",
+  "positions": [
+    {
+      "eval_id": "C001",
+      "role": "controller_validation_only",
+      "source_cells": [1],
+      "x": 0.2608,
+      "y": -0.4119,
+      "table_z": 0.0271,
+      "notes": "Recorded cell 1; use only for paired live-observation diagnostics."
+    }
+  ]
+}

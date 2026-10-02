@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "robot_ip": "172.16.0.2",
+  "ratchet_limit_calibration": "calibration/bolt_ratchet_limits_v1.json",
+  "execution_enabled": true,
+  "required_setup": "empty Hand, no bolt, clear local path near THREAD_READY",
+  "forward_angle_rad": 1.5707963267948966,
+  "forward_angle_deg": 90.0,
+  "reverse_angle_rad": 1.5707963267948966,
+  "reverse_angle_deg": 90.0,
+  "expected_start_q": [-0.06152, 0.82522, 0.67567, -1.66098, -0.60578, 2.23223, 0.042990],
+  "start_q7_tolerance_rad": 0.03,
+  "other_joint_start_tolerance_rad": 0.05,
+  "minimum_forward_reserve_rad": 1.2,
+  "minimum_backward_reserve_rad": 0.15,
+  "relative_dynamics_factor": 0.05,
+  "joint_mechanical_margin_rad": 0.1,
+  "maximum_joint_delta_rad": 1.65,
+  "maximum_predicted_translation_m": 0.01,
+  "workspace_bounds_m": {
+    "min_xyz": [0.57, 0.31, 0.085],
+    "max_xyz": [0.61, 0.35, 0.115]
+  },
+  "stationary_baseline_duration_s": 3.0,
+  "stationary_sample_hz": 50.0,
+  "callback_capacity_per_phase": 60000,
+  "output_dir": "recordings/bolt_wrist_dynamic_baselines_v1",
+  "automatic_threshold_derivation_enabled": false,
+  "basis": {
+    "forward_motion": "physically passed empty-Hand +90 degree q7-only motion",
+    "reverse_motion": "physically passed empty-Hand -90 degree q7-only motion",
+    "logging": "preallocated callback arrays; disk writes only after both motions finish",
+    "contact": "none; bolt removed and Hand empty",
+    "franka_protections": "unchanged"
+  },
+  "read_only_preview_commissioning": {
+    "status": "PASSED",
+    "live_q7_rad": 0.043015,
+    "forward_target_q7_rad": 1.613811,
+    "reverse_target_q7_rad": 0.043015,
+    "predicted_tcp_translation_mm": 0.0,
+    "execution_blockers": 0,
+    "scope": "one empty-Hand no-bolt +90/-90 degree q7 dynamic baseline cycle"
+  },
+  "physical_execution_commissioning": {
+    "status": "PASSED",
+    "capture": "recordings/bolt_wrist_dynamic_baselines_v1/20260812_215222_681706_empty_wrist_dynamic_baseline",
+    "control_sample_count": 24361,
+    "median_callback_rate_hz": 999.9999998,
+    "maximum_callback_gap_ms": 5.0,
+    "return_q7_error_rad": 0.00005205,
+    "maximum_tcp_drift_mm": 0.257346,
+    "thresholds_derived": false
+  }
+}

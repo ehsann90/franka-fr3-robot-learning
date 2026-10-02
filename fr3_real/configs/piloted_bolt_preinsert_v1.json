@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "task_name": "bolt",
+  "language_prompt": "insert the 3d printed bolt into the bracket hole and fasten it",
+  "capture_scope": "pickup_through_preinsert_only",
+  "robot_ip": "172.16.0.2",
+  "output_dir": "recordings/piloted_bolt_preinsert_trajectories_v1",
+  "robot_sample_hz": 50.0,
+  "gripper_sample_hz": 10.0,
+  "allowed_screw_slots": ["S1"],
+  "allowed_grasp_styles": ["CENTER"],
+  "calibration_file": "calibration/screw_expert_v1.json",
+  "preinsert_requirements": {
+    "no_contact": true,
+    "bolt_axis_visually_aligned": true,
+    "safe_clearance_m": "NOT_CALIBRATED"
+  },
+  "replay": {
+    "enabled": false,
+    "note": "Object replay remains disabled. The arm-only empty-workspace commissioning profile below is separate.",
+    "command_rate_hz": 15.0,
+    "arm_only_commissioning": {
+      "enabled": true,
+      "trajectory": "20260812_130029_bolt_preinsert_pilot_0001_S1_CENTER",
+      "empty_workspace_only": true,
+      "gripper_commands_enabled": false,
+      "playback_time_scale": 4.0,
+      "stage_robot_global_dynamics_factor": 1.0,
+      "relative_dynamics_factor": 0.3,
+      "joint_margin_rad": 0.12,
+      "start_joint_tolerance_rad": 0.005,
+      "terminal_joint_tolerance_rad": 0.02,
+      "maximum_scaled_target_velocity_rad_s": 0.4,
+      "maximum_target_step_rad": 0.12,
+      "workspace_bounds_m": {
+        "min_xyz": [0.43, -0.49, 0.04],
+        "max_xyz": [0.64, 0.35, 0.25]
+      },
+      "maximum_fk_path_error_m": 0.005,
+      "state_timeout_s": 150.0,
+      "automatic_reset_to_start": {
+        "enabled": true,
+        "relative_dynamics_factor": 0.05,
+        "joint_margin_rad": 0.12,
+        "maximum_joint_delta_rad": 1.6,
+        "workspace_bounds_m": {
+          "min_xyz": [0.43, -0.49, 0.04],
+          "max_xyz": [0.64, 0.35, 0.25]
+        },
+        "target_fk_error_limit_m": 0.005,
+        "terminal_joint_tolerance_rad": 0.005,
+        "commissioning_basis": "maximum 1.527274 rad start-relative joint variation observed inside accepted trajectory"
+      },
+      "commissioning_basis": {
+        "source_capture": "accepted, 2637 samples, 50Hz, zero errors",
+        "source_peak_joint_velocity_rad_s": 1.447361,
+        "source_xyz_min": [0.45808, -0.4684, 0.05413],
+        "source_xyz_max": [0.61406, 0.32883, 0.22977],
+        "purpose": "first arm-only replay; no bolt, Hand command, contact, or threading"
+      }
+    },
+    "object_preinsert_execution": {
+      "enabled": true,
+      "trajectory": "20260812_130029_bolt_preinsert_pilot_0001_S1_CENTER",
+      "screw_slot": "S1",
+      "screw_grasp_style": "CENTER",
+      "playback_time_scale": 4.0,
+      "stage_robot_global_dynamics_factor": 1.0,
+      "relative_dynamics_factor": 0.3,
+      "joint_margin_rad": 0.12,
+      "start_joint_tolerance_rad": 0.005,
+      "terminal_joint_tolerance_rad": 0.02,
+      "maximum_scaled_target_velocity_rad_s": 0.4,
+      "maximum_target_step_rad": 0.12,
+      "workspace_bounds_m": {
+        "min_xyz": [0.43, -0.49, 0.04],
+        "max_xyz": [0.64, 0.35, 0.25]
+      },
+      "maximum_fk_path_error_m": 0.005,
+      "state_timeout_s": 150.0,
+      "automatic_reset_to_start": {
+        "enabled": true,
+        "relative_dynamics_factor": 0.05,
+        "joint_margin_rad": 0.12,
+        "maximum_joint_delta_rad": 1.6,
+        "workspace_bounds_m": {
+          "min_xyz": [0.43, -0.49, 0.04],
+          "max_xyz": [0.64, 0.35, 0.25]
+        },
+        "target_fk_error_limit_m": 0.005,
+        "terminal_joint_tolerance_rad": 0.005
+      },
+      "gripper": {
+        "held_width_calibration": "calibration/bolt_grasp_width_v2.json",
+        "calibrated_median_width_m": 0.0000013133333141013281,
+        "grasp_target_width_m": 0.0,
+        "grasp_speed_m_s": 0.02,
+        "grasp_force_n": 15.0,
+        "epsilon_inner_m": 0.002,
+        "epsilon_outer_m": 0.02,
+        "maximum_accepted_held_width_m": 0.02,
+        "epsilon_outer_and_max_width_basis": "widened from 0.002 on 2026-08-16 after a live grasp attempt closed to 0.016286 m instead of the calibrated ~0.000001 m and was rejected on tolerance even though the operator visually confirmed a secure hold on the same bolt/fingertips/grasp point as episode 9 -- not a recalibration of the target (still 0.0), just accepting the real observed stop width instead of the much tighter original band",
+        "monitor_hz": 10.0,
+        "operator_visual_confirmation_required": true,
+        "width_cannot_distinguish_empty_hand": true
+      },
+      "contact_threading_enabled": false,
+      "camera_recording_enabled": false,
+      "commissioning_basis": {
+        "arm_path": "both empty-workspace stages physically passed at 4x",
+        "held_width_v1_m": 0.000002,
+        "held_width_v2_m": 0.000001,
+        "operator_mechanical_check": "bolt remained secure after light table impact",
+        "grasp_speed_force_source": "same Hand speed/force used by the successful bracket episode",
+        "limitation": "mandatory visual presence check because width is indistinguishable from empty closure"
+      }
+    }
+  },
+  "contact_threading": {
+    "enabled": false,
+    "contact_force_threshold": "NOT_CALIBRATED",
+    "axial_force_target": "NOT_CALIBRATED",
+    "axial_force_hard_limit": "NOT_CALIBRATED",
+    "rotational_resistance_engage_max": "NOT_CALIBRATED",
+    "rotational_resistance_jam": "NOT_CALIBRATED",
+    "rotational_resistance_tight": "NOT_CALIBRATED",
+    "minimum_expected_depth_before_tight": "NOT_CALIBRATED",
+    "maximum_allowed_depth": "NOT_CALIBRATED",
+    "maximum_xy_search_radius": "NOT_CALIBRATED",
+    "max_thread_recovery_attempts": "NOT_CALIBRATED",
+    "wrist_reset_angle": "NOT_CALIBRATED",
+    "wrist_cable_safe_limits": "NOT_CALIBRATED",
+    "state_timeouts": "NOT_CALIBRATED"
+  },
+  "sensor_baseline": {
+    "enabled": true,
+    "output_dir": "recordings/bolt_preinsert_wrench_baselines_v1",
+    "robot_sample_hz": 50.0,
+    "duration_s": 10.0,
+    "arm_commands_enabled": false,
+    "gripper_connection_enabled": false,
+    "contact_threading_enabled": false,
+    "required_setup": "bolt securely held and stationary at no-contact PREINSERT",
+    "wrench_order": ["Fx", "Fy", "Fz", "Tx", "Ty", "Tz"],
+    "k_frame_z_status": "candidate screw axis only; experimental verification required",
+    "thresholds_derived_automatically": false
+  }
+}

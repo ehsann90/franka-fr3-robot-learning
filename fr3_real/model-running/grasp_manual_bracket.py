@@ -1,0 +1,131 @@
+#!/usr/bin/env python3
+"""Guarded, Hand-only grasp of the real bracket at the manual candidate's
+recorded grasp pose (the stationary point between approach_open and
+transport_place_closed).
+
+No arm motion is ever issued by this script -- it only checks that the arm
+is already at the recorded grasp pose (put there by a prior successful
+approach_open --execute) and that the Hand currently reads open, then on
+--execute issues one franky Gripper.grasp() call and reports the resulting
+width against the configured held-width band.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+import numpy as np
+
+FR3_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(FR3_ROOT))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from prepare_manual_bracket_replay import build_manual_stage_plan  # noqa: E402
+from manual_bracket_confirmation import confirm_hand_action  # noqa: E402
+
+DEFAULT_CONFIG = FR3_ROOT / "configs" / "bracket_manual_replay_2x_commissioning_v1.json"
+
+
+def project_path(value: str | Path) -> Path:
+    path = Path(value).expanduser()
+    return path.resolve() if path.is_absolute() else (FR3_ROOT / path).resolve()
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    modes = parser.add_mutually_exclusive_group(required=True)
+    modes.add_argument("--read-only-preview", action="store_true")
+    modes.add_argument("--execute", action="store_true")
+    parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
+    args = parser.parse_args()
+
+    config = json.loads(args.config.expanduser().resolve().read_text())
+    candidate_path = project_path(config["candidate"])
+    plan = build_manual_stage_plan(
+        candidate_path, "approach_open", command_rate_hz=float(config["command_rate_hz"])
+    )
+    target_q = plan.expected_stop_q
+    gripper_config = config["gripper"]
+
+    print("=== MANUAL BRACKET GRASP (HAND-ONLY, NO ARM MOTION) ===")
+    print(f"mode:                    {'EXECUTE' if args.execute else 'READ_ONLY_PREVIEW'}")
+    print(f"robot IP:                {config['robot_ip']}")
+    print(f"candidate:               {candidate_path}")
+    print(f"grasp target q:          {np.array2string(target_q, precision=5)}")
+    print(f"grasp target xyz:        {np.array2string(plan.xyz_targets[-1], precision=5)}")
+    print(f"grasp target width:      {gripper_config['grasp_target_width_m']} m")
+    print(f"grasp speed/force:       {gripper_config['grasp_speed_m_s']} m/s / {gripper_config['grasp_force_n']} N")
+    print(f"held width band:         [{gripper_config['held_width_min_m']}, {gripper_config['held_width_max_m']}] m")
+    print("arm commands:            DISABLED BY DESIGN")
+
+    static_blockers = []
+    if args.execute and gripper_config.get("enabled") is not True:
+        static_blockers.append("gripper.enabled is false")
+    if args.execute and static_blockers:
+        for blocker in static_blockers:
+            print(f"  - {blocker}")
+        raise SystemExit("[SAFETY] grasp execution is not commissioned; no robot connection attempted")
+
+    input(
+        "Confirm the real bracket is placed at B1 and the arm is at the recorded grasp pose. "
+        "Press Enter to connect and inspect live state (Ctrl+C cancels): "
+    )
+    from franky import Gripper, Robot  # noqa: PLC0415
+
+    robot = Robot(config["robot_ip"])
+    gripper = Gripper(config["robot_ip"])
+    live_q = np.asarray(robot.state.q, dtype=np.float64)
+    pose_error = float(np.max(np.abs(live_q - target_q)))
+    width = float(gripper.state.width)
+    grasped = bool(gripper.is_grasped)
+
+    print(f"\nlive q:                  {np.array2string(live_q, precision=5)}")
+    print(f"pose error:              {pose_error:.6f} rad")
+    print(f"live Hand width/grasped: {width:.6f} m / {grasped}")
+
+    blockers = []
+    if pose_error > float(gripper_config["grasp_pose_tolerance_rad"]):
+        blockers.append("arm is not at the recorded grasp pose")
+    if grasped:
+        blockers.append("Hand already reports grasped before the requested grasp")
+    if blockers:
+        print("\nBlockers:")
+        for blocker in blockers:
+            print(f"  - {blocker}")
+    if args.read_only_preview:
+        print("\nPreview complete. No Hand command was issued.")
+        if blockers:
+            raise SystemExit(3)
+        return
+    if blockers:
+        raise SystemExit("[SAFETY] grasp execution refused")
+
+    if not confirm_hand_action("grasp", config):
+        raise SystemExit("[grasp] aborted without a Hand command")
+
+    accepted = bool(gripper.grasp(
+        float(gripper_config["grasp_target_width_m"]),
+        float(gripper_config["grasp_speed_m_s"]),
+        float(gripper_config["grasp_force_n"]),
+        float(gripper_config["epsilon_inner_m"]),
+        float(gripper_config["epsilon_outer_m"]),
+    ))
+    final_width = float(gripper.state.width)
+    final_grasped = bool(gripper.is_grasped)
+    within_band = (
+        float(gripper_config["held_width_min_m"]) <= final_width <= float(gripper_config["held_width_max_m"])
+    )
+    print(f"[DONE] grasp accepted:   {accepted}")
+    print(f"[DONE] final width:      {final_width:.6f} m")
+    print(f"[DONE] final grasped:    {final_grasped}")
+    print(f"[DONE] within held band: {within_band}")
+    if not (accepted and final_grasped and within_band):
+        print("[WARNING] grasp result does not look like a clean hold on the bracket -- "
+              "visually verify before any further motion")
+
+
+if __name__ == "__main__":
+    main()

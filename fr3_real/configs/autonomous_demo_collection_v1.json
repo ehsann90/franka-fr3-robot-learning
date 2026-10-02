@@ -1,0 +1,508 @@
+{
+  "schema_version": 1,
+  "robot_ip": "172.16.0.2",
+  "collection_mode": "autonomous_commissioned_replay",
+  "camera": {
+    "width": 640,
+    "height": 480,
+    "source_fps": 30,
+    "serials_in_dataset_order": [
+      {"role": "exterior", "serial": "336222074819"},
+      {"role": "wrist", "serial": "243322074869"}
+    ]
+  },
+  "robot_state_sample_hz": 30.0,
+  "dataset": {
+    "target_fps": 15,
+    "schema": "droid_joint_position",
+    "action_dimension": 8,
+    "action_semantics": "absolute achieved-next q[7] plus achieved-next gripper closedness",
+    "openpi_requirement": "LeRobotDROIDDataConfig(joint_position_actions=True, prompt_from_task=True)",
+    "success_only_default": true,
+    "trim_setup_reset_and_terminal_idle": true
+  },
+  "tasks": {
+        "bracket_placement": {
+            "enabled": true,
+            "status": "RECORDING_PREVIEW_PASSED_PRODUCTION_RECORDING_ENABLED",
+      "language_prompt": "place the 3d printed bracket onto the wall alignment pins",
+      "output_dir": "recordings/bracket_autonomous_raw_v1",
+      "trajectory_dir": "recordings/piloted_bracket_trajectories_v1/20260812_115247_bracket_pilot_0004_B1_CENTER",
+      "slot": "B1",
+      "grasp_style": "CENTER",
+      "success_endpoint": "bracket mounted on alignment pins; Hand open; arm retreated",
+            "commissioned_replay_config": "configs/piloted_bracket_trajectory_v1.json",
+            "recording_preview": {
+                "date": "2026-08-13",
+                "camera_frame_counts": {
+                    "exterior": 48,
+                    "wrist": 47
+                },
+                "robot_state_samples": 59,
+                "duration_s": 2.0,
+                "maximum_fk_path_error_m": 0.000021,
+                "automatic_reset_required": true,
+                "automatic_reset_max_joint_delta_rad": 0.130590,
+                "motion_or_hand_command_issued": false,
+                "result": "PASSED"
+            },
+            "accepted_production_episodes": [
+                {
+                    "episode_index": 1,
+                    "path": "recordings/bracket_autonomous_raw_v1/20260813_153749_bracket_autonomous_0001_B1_CENTER",
+                    "camera_frames_each": 4315,
+                    "robot_state_samples": 4298,
+                    "maximum_state_gap_s": 0.034327464,
+                    "camera_errors": 0,
+                    "operator_accepted": true,
+                    "bc_training_eligible": true
+                }
+            ]
+        },
+        "bolt_insert_engage": {
+            "enabled": true,
+            "status": "405_DEGREE_85X3_50X3_CONTINUOUS_WINDOW_SETUP_CHAIN_CONFIGURED",
+            "language_prompt": "pick up the 3d printed bolt, insert it into the mounted bracket, and engage the threads",
+            "output_dir": "recordings/bolt_engagement_autonomous_raw_v1",
+            "slot": "S1",
+            "grasp_style": "CENTER",
+            "pickup_shaft_grasp": {
+                "target_width_m": 0.0157,
+                "speed_m_s": 0.02,
+                "force_N": 15.0,
+                "epsilon_inner_m": 0.002,
+                "epsilon_outer_m": 0.003,
+                "accepted_width_min_m": 0.0145,
+                "accepted_width_max_m": 0.0185,
+                "physical_hold_width_min_m": 0.0160,
+                "physical_hold_width_max_m": 0.0185,
+                "basis": "camera-verified narrow-shaft grasps have measured 0.016267..0.018056 m; the 2026-08-14 full-flow pickup was centered at 0.018056 m but exceeded the former bound by 0.056 mm, so the epsilon and bounded physical-obstruction range now cover measured repeatability while remaining above the empty-Hand 0.0157 m target"
+            },
+            "thread_ready_head_grasp": {
+                "target_width_m": 0.015746,
+                "speed_m_s": 0.02,
+                "force_N": 15.0,
+                "epsilon_inner_m": 0.002,
+                "epsilon_outer_m": 0.0045,
+                "accepted_width_min_m": 0.015595,
+              "accepted_width_max_m": 0.017,
+                "operator_confirmed_width_min_m": 0.0145,
+                "operator_confirmed_width_max_m": 0.020,
+                "physical_obstruction_width_min_m": 0.0160,
+                "physical_obstruction_width_max_m": 0.0200,
+                "calibration": "calibration/bolt_thread_ready_head_width_v1.json",
+                "basis": "strict band comes from the passed calibration; episode 4 wrist video kept the head centered while the measured width grew from 0.017354 to 0.018771 m during 0.932 mm axial travel, showing contact migrated onto the rounded head rather than losing the bolt. A false Franka boolean is accepted only for a 0.0160..0.0200 m physical obstruction, which remains above the empty-Hand 0.015746 m target"
+            },
+            "success_endpoint": "bolt visibly thread-engaged and self-supported; Hand open; arm stationary",
+            "preinsert_trajectory_dir": "recordings/piloted_bolt_preinsert_trajectories_v1/20260812_130029_bolt_preinsert_pilot_0001_S1_CENTER",
+            "drop_regrasp_trajectory_dir": "recordings/piloted_bolt_drop_regrasp_trajectories_v1/20260812_133722_bolt_drop_regrasp_pilot_0001_S1_CENTER",
+            "preinsert_config": "configs/piloted_bolt_preinsert_v1.json",
+            "drop_regrasp_config": "configs/piloted_bolt_drop_regrasp_v1.json",
+            "engagement_config": "configs/bolt_combined_thread_5_v1.json",
+            "dynamic_model_calibration": "calibration/bolt_wrist_dynamic_model_v1.json",
+            "engagement_start_q7_rad": 0.1,
+            "engagement_drive_sequence": [
+                {
+                    "name": "drive_85_first",
+                    "angle_deg": 85.0,
+                    "binary": "model-running/streaming/build/fr3_bolt_combined_thread_85_widelateral",
+                    "stationary_open_regrasp_before": false,
+                    "empty_wrist_ratchet_before": false
+                },
+                {
+                    "name": "drive_85_second",
+                    "angle_deg": 85.0,
+                    "binary": "model-running/streaming/build/fr3_bolt_combined_thread_85_widelateral",
+                    "stationary_open_regrasp_before": false,
+                    "empty_wrist_ratchet_before": true
+                },
+                {
+                    "name": "drive_85_third",
+                    "angle_deg": 85.0,
+                    "binary": "model-running/streaming/build/fr3_bolt_combined_thread_85_widelateral",
+                    "stationary_open_regrasp_before": false,
+                    "empty_wrist_ratchet_before": true
+                },
+                {
+                    "name": "drive_50_fourth",
+                    "angle_deg": 50.0,
+                    "binary": "model-running/streaming/build/fr3_bolt_combined_thread_50_widelateral",
+                    "stationary_open_regrasp_before": false,
+                    "empty_wrist_ratchet_before": true
+                },
+                {
+                    "name": "drive_50_fifth",
+                    "angle_deg": 50.0,
+                    "binary": "model-running/streaming/build/fr3_bolt_combined_thread_50_widelateral",
+                    "stationary_open_regrasp_before": false,
+                    "empty_wrist_ratchet_before": true
+                },
+                {
+                    "name": "drive_50_final",
+                    "angle_deg": 50.0,
+                    "binary": "model-running/streaming/build/fr3_bolt_combined_thread_50_widelateral",
+                    "stationary_open_regrasp_before": false,
+                    "empty_wrist_ratchet_before": true
+                }
+            ],
+            "total_engagement_rotation_deg": 405.0,
+            "engagement_basis": "setup run at 270 degrees remained intermittently unengaged. Six continuous axial-admittance windows apply 85+85+85+50+50+50 degrees while maintaining the +1.200360 N relative axial target, with a stationary open/empty-wrist reset/regrasp before every window after the first; each window independently remains inside the calibrated q7 interval",
+            "empty_wrist_prewind_relative_dynamics_factor": 0.05,
+            "empty_wrist_prewind_basis": "q7 1.6705 to 0.1000 is approximately the passed empty-Hand -90 degree reset; mid-chain q7 approximately 1.583 to 0.100 is approximately the passed automatic -85.059 degree ratchet reset",
+            "automatic_reset_to_start": {
+                "enabled": true,
+                "relative_dynamics_factor": 0.05,
+                "joint_margin_rad": 0.12,
+                "maximum_joint_delta_rad": 0.5,
+                "workspace_bounds_m": {
+                    "min_xyz": [
+                        0.57,
+                        -0.12,
+                        0.16
+                    ],
+                    "max_xyz": [
+                        0.70,
+                        -0.04,
+                        0.27
+                    ]
+                },
+                "target_fk_error_limit_m": 0.005,
+                "terminal_joint_tolerance_rad": 0.005,
+                "basis": "narrow union corridor from the physically passed bracket retreat endpoint to the physically passed bolt approach-start endpoint"
+            },
+            "commissioning_record": "calibration/bolt_threading_commissioning_v1.json",
+            "automatic_retreat_enabled": false,
+            "operator_final_engagement_confirmation_required": true,
+            "recording_preview": {
+                "date": "2026-08-13",
+                "camera_frame_counts": {
+                    "exterior": 48,
+                    "wrist": 47
+                },
+                "robot_state_samples": 59,
+                "duration_s": 2.0,
+                "automatic_reset_required": true,
+                "automatic_reset_max_joint_delta_rad": 0.444762,
+                "combined_path_xyz_min_m": [
+                    0.45809,
+                    -0.46835,
+                    0.05414
+                ],
+                "combined_path_xyz_max_m": [
+                    0.61403,
+                    0.33375,
+                    0.22976
+                ],
+                "motion_or_hand_command_issued": false,
+                "result": "PASSED"
+            },
+            "cross_task_reset_preview": {
+                "date": "2026-08-13",
+                "source_pose": "accepted bracket episode 1 retreat endpoint",
+                "target_pose": "commissioned bolt approach_open start",
+                "maximum_joint_delta_rad": 0.188561,
+                "path_xyz_min_m": [
+                    0.60514,
+                    -0.09015,
+                    0.18962
+                ],
+                "path_xyz_max_m": [
+                    0.65235,
+                    -0.05596,
+                    0.21767
+                ],
+                "target_fk_error_m": 0.0,
+                "camera_frame_counts": {
+                    "exterior": 47,
+                    "wrist": 47
+                },
+                "robot_state_samples": 59,
+                "motion_or_hand_command_issued": false,
+                "result": "PASSED"
+            },
+            "failed_pickup_recovery_preview": {
+                "date": "2026-08-13",
+                "selected_profile": "commissioned_preinsert_recovery",
+                "maximum_joint_delta_rad": 0.688152,
+                "path_xyz_min_m": [
+                    0.46224,
+                    -0.45799,
+                    0.06130
+                ],
+                "path_xyz_max_m": [
+                    0.60592,
+                    -0.05596,
+                    0.18962
+                ],
+                "target_fk_error_m": 0.0,
+                "camera_frame_counts": {
+                    "exterior": 48,
+                    "wrist": 47
+                },
+                "robot_state_samples": 59,
+                "motion_or_hand_command_issued": false,
+                "result": "PASSED"
+            },
+            "failed_production_episodes": [
+                {
+                    "episode_index": 1,
+                    "path": "recordings/bolt_engagement_autonomous_raw_v1/20260813_154400_bolt_engagement_autonomous_0001_S1_CENTER",
+                    "reason": "wide circular head was between the jaws instead of the narrow pickup shaft",
+                    "bc_training_eligible": false
+                },
+                {
+                    "episode_index": 2,
+                    "path": "recordings/bolt_engagement_autonomous_raw_v1/20260813_155204_bolt_engagement_autonomous_0002_S1_CENTER",
+                    "reason": "camera verified correct shaft placement and physical hold at 0.016267 m, but obsolete 0 m grasp target caused Franky accepted/is_grasped false",
+                    "bc_training_eligible": false
+                },
+                {
+                    "episode_index": 3,
+                    "path": "recordings/bolt_engagement_autonomous_raw_v1/20260813_160042_bolt_engagement_autonomous_0003_S1_CENTER",
+                    "reason": "software attempted to modify Franky's read-only q array before the empty-wrist prewind; no prewind, head grasp, or engagement command was issued",
+                    "bc_training_eligible": false
+                },
+                {
+                    "episode_index": 4,
+                    "path": "recordings/bolt_engagement_autonomous_raw_v1/20260813_160918_bolt_engagement_autonomous_0004_S1_CENTER",
+                    "reason": "the commissioned +5 degree controller completed safely, but operator correctly rejected it because approximately 135 degrees are required for visible engagement",
+                    "bc_training_eligible": false
+                },
+                {
+                    "episode_index": 5,
+                    "path": "recordings/bolt_engagement_autonomous_raw_v1/20260813_162440_bolt_engagement_autonomous_0005_S1_CENTER",
+                    "reason": "the initial head regrasp was visually aligned, but the script discarded the raw Hand command result and aborted on its strict calibrated validation before any tightening drive",
+                    "camera_frame_counts": {
+                        "exterior": 9548,
+                        "wrist": 9548
+                    },
+                    "camera_errors": {
+                        "exterior": [],
+                        "wrist": []
+                    },
+                    "tightening_command_issued": false,
+                    "bc_training_eligible": false
+                },
+                {
+                    "episode_index": 6,
+                    "path": "recordings/bolt_engagement_autonomous_raw_v1/20260813_163647_bolt_engagement_autonomous_0006_S1_CENTER",
+                    "reason": "the first +45 degree drive completed normally, but the post-controller reconnection retained an obsolete strict-only 0.015595..0.016400 m head-width check and aborted before the +40 degree continuation",
+                    "initial_head_width_m": 0.01669180952012539,
+                    "drive_45_first": {
+                        "stop_reason": "motion_completed",
+                        "measured_yaw_deg": 44.999944,
+                        "axial_delta_range_N": [-0.061373, 1.306437],
+                        "maximum_axial_travel_mm": 0.367618,
+                        "maximum_lateral_mm": 0.072525,
+                        "minimum_residual_Nm": -0.355077
+                    },
+                    "camera_frame_counts": {
+                        "exterior": 10781,
+                        "wrist": 10780
+                    },
+                    "camera_errors": {
+                        "exterior": [],
+                        "wrist": []
+                    },
+                    "bc_training_eligible": false
+                }
+            ],
+            "accepted_production_episodes": [
+                {
+                    "episode_index": 7,
+                    "path": "recordings/bolt_engagement_autonomous_raw_v1/20260813_164654_bolt_engagement_autonomous_0007_S1_CENTER",
+                    "total_tightening_rotation_deg": 135.0,
+                    "camera_frame_counts": {
+                        "exterior": 15880,
+                        "wrist": 15880
+                    },
+                    "robot_state_samples": 15804,
+                    "camera_errors": {
+                        "exterior": [],
+                        "wrist": []
+                    },
+                    "all_direct_drive_stop_reasons": "motion_completed",
+                    "operator_accepted": true,
+                    "bc_training_eligible": true
+                }
+            ],
+            "head_regrasp_validation_policy": {
+                "date": "2026-08-13",
+                "strict_calibrated_width_m": [0.015595, 0.016400],
+                "bounded_operator_confirmation_width_m": [0.014500, 0.018000],
+                "raw_accepted_is_grasped_and_width_logged_before_decision": true,
+                "same_policy_applied_after_every_direct_controller_reconnection": true,
+                "mandatory_visual_confirmation_for_non_strict_result": true,
+                "outside_bounded_width_always_refused": true,
+                "basis": "attempt 5 final wrist and exterior frames show the upright bolt correctly positioned at the head grasp, while earlier physically held printed-part grasps produced false Franky accepted/is_grasped results"
+            },
+            "engagement_135_recording_preview": {
+                "date": "2026-08-13",
+                "total_rotation_deg": 135.0,
+                "planned_q7_intervals_rad": [
+                    [0.100, 0.885],
+                    [0.885, 1.584],
+                    [0.100, 0.885],
+                    [0.885, 0.973]
+                ],
+                "selected_reset_profile": "commissioned_preinsert_recovery",
+                "reset_maximum_joint_delta_rad": 0.570740,
+                "reset_path_xyz_min_m": [
+                    0.59412,
+                    -0.05596,
+                    0.10202
+                ],
+                "reset_path_xyz_max_m": [
+                    0.63135,
+                    0.32797,
+                    0.18962
+                ],
+                "reset_target_fk_error_m": 0.0,
+                "camera_frame_counts": {
+                    "exterior": 48,
+                    "wrist": 47
+                },
+                "robot_state_samples": 59,
+                "motion_or_hand_command_issued": false,
+                "result": "PASSED"
+            }
+        },
+        "full_bracket_bolt_assembly": {
+            "enabled": true,
+            "status": "COMPLETE_TRIMMED_2X_CHAIN_PASSED_REPEAT_PRODUCTION_COLLECTION_ENABLED",
+            "language_prompt": "mount the 3d printed bracket on the frame, then pick up the 3d printed bolt, insert it into the bracket, and engage the threads",
+            "output_dir": "recordings/full_bracket_bolt_autonomous_raw_v1",
+            "bracket_task": "bracket_placement",
+            "bolt_task": "bolt_insert_engage",
+            "initial_object_setup": "bracket at B1 and bolt at S1 before recording",
+            "arm_playback_speed_multiplier": 1.0,
+            "requested_future_speed_multiplier": 2.0,
+            "threading_peak_angular_speed_rad_s": 0.03,
+            "initial_reset_maximum_segments": 2,
+            "cross_task_transition": {
+                "relative_dynamics_factor": 0.05,
+                "joint_margin_rad": 0.12,
+                "maximum_joint_delta_rad": 2.2,
+                "maximum_joint_delta_rad_basis": "raised in small reactive steps for B3 (0.65) then B5 (0.85) on 2026-08-17; set once to 2.2 after that to stop re-bumping per bracket slot. 2.2 rad is still well short of any single joint's full guarded range (JOINT_MIN/JOINT_MAX with the same 0.12 rad joint_margin_rad below still applies to every intermediate interpolated pose, which remains the real backstop against a wild path) -- this only widens how big a straight-line joint-space gap between the bracket and bolt tasks is allowed to be before the check refuses, it does not disable the check.",
+                "workspace_bounds_m": {
+                    "min_xyz": [0.21, -0.53, -0.04],
+                    "max_xyz": [0.73, 0.4, 0.32]
+                },
+                "workspace_bounds_m_basis": "widened on 2026-08-17 to match the broad reset_workspace_bounds_m envelope trusted for every bracket_manual_replay_1x_highcap_b*.json config, then bumped x from 0.71 to 0.73 the same day when B6 measured a cross-task reset path max x of 0.71155 (and B6's own bracket-task combined path needed 0.7178, fixed the same way in that config). The FK path through this transition is still checked against this envelope and against target_fk_error_limit_m below.",
+                "target_fk_error_limit_m": 0.005,
+                "terminal_joint_tolerance_rad": 0.005
+            },
+            "object_setup_geometry": {
+                "B1_to_S1_grasp_distance_m": 0.2337159129665725,
+                "bracket_approach_minimum_distance_to_S1_grasp_m": 0.16132702433736212,
+                "bolt_approach_minimum_distance_to_B1_grasp_m": 0.2293013281019349,
+                "basis": "offline TCP geometry only; complete live path and object-clearance visual confirmation remains required"
+            },
+            "first_read_only_preview": {
+                "date": "2026-08-13",
+                "result": "BLOCKED_BEFORE_MOTION",
+                "live_start_error_rad": 0.510308,
+                "reset_path_xyz_min_m": [0.59387, -0.08396, 0.10128],
+                "reset_path_xyz_max_m": [0.63459, 0.32805, 0.18752],
+                "reset_target_fk_error_m": 0.0,
+                "single_segment_limit_rad": 0.5,
+                "correction": "execute the identical previewed reset path as two equal slow JointMotion segments of approximately 0.255154 rad maximum each",
+                "motion_or_hand_command_issued": false
+            },
+            "segmented_reset_read_only_preview": {
+                "date": "2026-08-13",
+                "result": "PASSED",
+                "live_start_error_rad": 0.510306,
+                "selected_reset_profile": "commissioned_bracket_reset",
+                "reset_segments": 2,
+                "maximum_joint_delta_per_segment_rad": 0.255153,
+                "reset_path_xyz_min_m": [0.59386, -0.08396, 0.10128],
+                "reset_path_xyz_max_m": [0.63459, 0.32805, 0.18752],
+                "reset_target_fk_error_m": 0.0,
+                "cross_task_transition_xyz_min_m": [0.60514, -0.09019, 0.18962],
+                "cross_task_transition_xyz_max_m": [0.65245, -0.05596, 0.21788],
+                "camera_frame_counts": {
+                    "exterior": 47,
+                    "wrist": 47
+                },
+                "robot_state_samples": 59,
+                "motion_or_hand_command_issued": false
+            },
+            "two_x_profile": {
+                "enabled": true,
+                "commissioning_config": "configs/full_assembly_2x_commissioning_v1.json",
+                "controller": "model-running/streaming/build/fr3_retimed_joint_trajectory",
+                "implementation": "direct libfranka 1 kHz clamped-cubic joint reference with rate-limited velocity tracking; exact recorded position knots; zero stage-boundary velocity; continuous acceleration",
+                "offline_validation": "PASSED_ALL_SEVEN_ARM_STAGES_2026-08-14",
+                "reason": "all seven trimmed arm paths passed offline limits; six active arm paths passed empty-Hand at identical timing, the final reapproach passed with the real bracket/bolt and automatic head grasp, and episode 5 completed the uninterrupted guarded chain; repeated collection remains subject to every per-run preflight and live guard",
+                "idle_edge_trim": "0.005 rad/s interval threshold with 0.2 s source-time buffer; interior pauses preserved",
+                "trimmed_arm_duration_s": 95.601,
+                "threading_0_060_rad_s_commissioned": "COMPLETE_CHAIN_PASSED_REPEAT_COLLECTION_ENABLED_WITH_UNCHANGED_GUARDS",
+                "maximum_supervised_production_trials": null,
+                "collision_reflex_settings": "UNCHANGED"
+            },
+            "three_x_profile": {
+                "enabled": true,
+                "commissioning_config": "configs/full_assembly_3x_production_v1.json",
+                "controller": "model-running/streaming/build/fr3_retimed_joint_trajectory",
+                "implementation": "3x target with per-stage source-time scaling constrained to 90 percent of the unchanged 1.2/4.0/40.0 arm caps; exact 0.090 rad/s guarded threading binaries",
+                "authorization_basis": "explicit operator request after uninterrupted episode 6 completed all seven 2x object stages and the complete guarded 270-degree 85+85+50+50 chain",
+                "maximum_supervised_production_trials": null,
+                "collision_reflex_settings": "UNCHANGED"
+            },
+            "four_x_profile": {
+                "enabled": true,
+                "commissioning_config": "configs/full_assembly_4x_production_v1.json",
+                "controller": "model-running/streaming/build/fr3_retimed_joint_trajectory",
+                "implementation": "recorded-source-speed target with each arm stage constrained below 90 percent of the unchanged 1.2/4.0/40.0 caps; exact 0.120 rad/s guarded threading binaries",
+                "authorization_basis": "explicit setup request after episode 7 completed the cap-aware 3x chain without a guard stop but 270 degrees did not consistently engage the threads",
+                "maximum_supervised_production_trials": null,
+                "collision_reflex_settings": "UNCHANGED"
+            },
+            "success_endpoint": "bracket mounted and bolt visibly thread-engaged/self-supported; Hand open; arm stationary",
+            "automatic_retreat_enabled": false,
+      "continuous_execution_policy": {
+                "connect_read_only_prompt": false,
+                "empty_workspace_reset_confirmation_required": true,
+                "post_reset_object_setup_start_confirmation_required": true,
+                "prompts_after_recording_start": 0,
+                "guard_failure_behavior": "automatic abort; Hand is never automatically opened on failure",
+        "successful_completion_behavior": "open Hand, stop recording, mark pending_visual_review",
+        "training_eligibility_before_visual_review": false
+      },
+      "training_collection": {
+        "enabled": true,
+        "required_cli": "--record-demo --full-assembly --four-x --training-data",
+        "raw_capture_policy": "one continuous synchronized raw capture; never destructively split or relabel raw files",
+        "acceptance_policy": "operator must visually accept final thread engagement before success=true and bc_training_eligible=true",
+        "derived_views": {
+          "two_task_full_policy": {
+            "bracket": {
+              "start": "record_start_time_ns",
+              "end_event": "bracket_retreat_open_completed",
+              "language_prompt": "Place the 3D-printed bracket onto the wall alignment pins."
+            },
+            "bolt_full": {
+              "start_event": "bracket_retreat_open_completed",
+              "end_event": "training_motion_completed",
+              "language_prompt": "Pick up the 3D-printed bolt, insert it into the mounted bracket, and engage the threads."
+            }
+          },
+          "two_task_hybrid": {
+            "bracket": {
+              "start": "record_start_time_ns",
+              "end_event": "bracket_retreat_open_completed",
+              "language_prompt": "Place the 3D-printed bracket onto the wall alignment pins."
+            },
+            "bolt_thread_ready": {
+              "start_event": "bracket_retreat_open_completed",
+              "end_event": "thread_ready_completed",
+              "language_prompt": "Pick up the 3D-printed bolt, insert it into the mounted bracket, and securely grasp its head for threading."
+            }
+          }
+        },
+        "setup_validation_exclusion": "setup_validation_only=true recordings are rejected by the derived-view converter even when source inclusion is requested"
+      }
+        }
+  }
+}

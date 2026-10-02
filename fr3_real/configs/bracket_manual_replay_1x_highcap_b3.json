@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "robot_ip": "172.16.0.2",
+  "bracket_slot": "B3",
+  "note": "UNPRECEDENTED: true 1.0x (as-recorded speed) bracket replay for B3, using a new fr3_retimed_joint_trajectory_bracket_highcap_v2 binary. B3's pilot take moved faster than B1/B2's takes -- offline validation at 1.0x against the original bracket_highcap binary (1.20/10.0/160.0) blocked on velocity (peak 1.628611 rad/s) and jerk (peak 229.397092 rad/s^3) in transport_place_closed and retreat_open. This binary raises only velocity (1.20 -> 1.90 rad/s) and jerk (160.0 -> 260.0 rad/s^3), each with ~13-17% margin over the measured 1.0x peaks; acceleration stays at 10.0 (measured peak was already only 9.250645). The original bracket_highcap binary and every config citing its exact numbers for B1/B2 are untouched -- this is a separate, never-before-commissioned safety envelope. No prior physical trial exists at these caps; execution_enabled starts false for every stage and must only be flipped after its own live preview passes.",
+  "candidate": "recordings/bracket_manual_replay_ik_preview_v1/20260817_101811_bracket_manual_exact_pose_rebalanced_ik_candidate.csv",
+  "binary": "model-running/streaming/build/fr3_retimed_joint_trajectory_bracket_highcap_v2",
+  "output_dir": "recordings/bracket_manual_replay_1x_highcap_trials_v1",
+  "command_rate_hz": 15.0,
+  "playback_time_scale": 1.0,
+  "offline_validation_rate_hz": 1000.0,
+  "velocity_cap_rad_s": 1.9,
+  "acceleration_cap_rad_s2": 10.0,
+  "jerk_cap_rad_s3": 260.0,
+  "idle_edge_trim": {
+    "enabled": true,
+    "interval_velocity_threshold_rad_s": 0.005,
+    "source_time_buffer_s": 0.2
+  },
+  "controller_start_tolerance_rad": 0.005,
+  "reset_relative_dynamics_factor": 0.05,
+  "reset_maximum_joint_delta_rad": 0.5,
+  "reset_maximum_segments": 3,
+  "reset_terminal_tolerance_rad": 0.01,
+  "reset_workspace_bounds_m": {
+    "min_xyz": [0.21, -0.53, -0.04],
+    "max_xyz": [0.71, 0.4, 0.32]
+  },
+  "minimum_open_hand_width_m": 0.038,
+  "maximum_physical_trials_per_stage": 3,
+  "collision_reflex_settings": "UNCHANGED",
+  "gripper": {
+    "enabled": true,
+    "open_speed_m_s": 0.05,
+    "minimum_open_width_m": 0.038,
+    "monitor_hz": 10.0,
+    "grasp_target_width_m": 0.03,
+    "grasp_speed_m_s": 0.02,
+    "grasp_force_n": 15.0,
+    "epsilon_inner_m": 0.01,
+    "epsilon_outer_m": 0.01,
+    "held_width_min_m": 0.02,
+    "held_width_max_m": 0.04,
+    "grasp_pose_tolerance_rad": 0.01,
+    "basis": "same calibrated grasp parameters proven live on B1/B2 2026-08-16; unaffected by the raised arm-motion caps or bracket position",
+    "maximum_physical_trials": 3
+  },
+  "commissioning_basis": {
+    "offline_validation_date": "2026-08-17",
+    "offline_result": "PASSED at true 1.0x via commission_manual_bracket_arm.py --offline-validation against fr3_retimed_joint_trajectory_bracket_highcap_v2: approach_open 5.60/110.21, transport_place_closed 7.70/229.40, retreat_open 9.25/133.49 (accel/jerk rad/s^2 / rad/s^3), all under the 10.0/260.0 caps; peak velocities 0.94/1.63/1.40 rad/s all under the 1.9 cap. Live prepare-controller-preview still pending."
+  },
+  "stages": {
+    "approach_open": {
+      "execution_enabled": true,
+      "execution_enabled_basis": "prepared controller preview passed 2026-08-17 against fr3_retimed_joint_trajectory_bracket_highcap_v2 at true 1.0x -- operator confirmed clean output (live start error, baseline stillness, predicted path within bounds). This stage's peaks (0.94 rad/s / 5.60 rad/s^2 / 110.21 rad/s^3) stayed under even the original 1.20/10.0/160.0 caps.",
+      "workspace_bounds_m": {
+        "min_xyz": [0.21, -0.53, -0.04],
+        "max_xyz": [0.71, 0.4, 0.32]
+      }
+    },
+    "transport_place_closed": {
+      "execution_enabled": true,
+      "execution_enabled_basis": "operator override 2026-08-17: flipped without its own live prepare-controller-preview at the new 1.9/260 cap tier, on explicit repeated operator instruction. Offline validation passed (7.70 rad/s^2 / 229.40 rad/s^3, under the 10.0/260.0 caps; peak velocity 1.628611 rad/s under the 1.9 cap) but this is the first live trial of this stage at these caps, carrying the bracket.",
+      "workspace_bounds_m": {
+        "min_xyz": [0.21, -0.53, -0.04],
+        "max_xyz": [0.71, 0.4, 0.32]
+      }
+    },
+    "retreat_open": {
+      "execution_enabled": true,
+      "execution_enabled_basis": "prepared controller preview passed 2026-08-17 against fr3_retimed_joint_trajectory_bracket_highcap_v2 at true 1.0x: live start error 0.000275 rad, baseline |dq| 0.004340 rad/s, predicted path within workspace bounds, offline caps (1.9/10.0/260.0) passed. First-ever live trial at this cap tier for a stage that actually needed the raised caps (peak 1.395224 rad/s vs the old 1.20 cap).",
+      "workspace_bounds_m": {
+        "min_xyz": [0.21, -0.53, -0.04],
+        "max_xyz": [0.71, 0.4, 0.32]
+      }
+    }
+  }
+}

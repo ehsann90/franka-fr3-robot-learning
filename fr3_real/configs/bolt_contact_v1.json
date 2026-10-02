@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "robot_ip": "172.16.0.2",
+  "task_name": "bolt",
+  "screw_axis_frame": "K",
+  "screw_axis_direction": [0.0, 0.0, 1.0],
+  "axial_force_signal": "K_F_ext_hat_K[2]",
+  "axial_torque_signal": "K_F_ext_hat_K[5]",
+  "axis_calibration": {
+    "world_down_alignment_with_positive_Kz": 0.9989,
+    "recorded_lowering_alignment_with_positive_Kz": 0.9918,
+    "downward_load_sign": "positive",
+    "measured_gentle_load_delta_N": 1.20036,
+    "measured_supported_contact_delta_N": 3.044793
+  },
+  "contact_detection": {
+    "status": "PROVISIONAL_OPERATOR_APPROVED",
+    "threshold_relative_to_live_baseline_N": 0.5,
+    "persistence_samples": 5,
+    "sample_hz": 50.0,
+    "persistence_duration_s": 0.1,
+    "approval_basis": "operator approved after offline replay showed zero baseline false triggers; baseline std 0.036579 N",
+    "read_only_validation_passed": true,
+    "validation_capture": "recordings/bolt_contact_detector_trials_v1/20260812_202114_489796_bolt_contact_detector_trial",
+    "validation_result": {
+      "live_baseline_mean_N": -1.999181,
+      "live_baseline_std_N": 0.032681,
+      "peak_observed_delta_N": 1.560848,
+      "triggered_after_five_consecutive_samples": true,
+      "baseline_false_triggers": 0,
+      "note": "detector passed; captured endpoint remained loaded, so operator upward retraction is still required"
+    }
+  },
+  "read_only_validation": {
+    "enabled": true,
+    "baseline_duration_s": 3.0,
+    "operator_setup_delay_s": 5.0,
+    "monitor_timeout_s": 20.0,
+    "post_trigger_capture_s": 0.5,
+    "output_dir": "recordings/bolt_contact_detector_trials_v1"
+  },
+  "automatic_contact_motion": {
+    "enabled": true,
+    "status": "PHYSICALLY_COMMISSIONED_CONTACT_SEARCH",
+    "axial_force_target": "NOT_CALIBRATED",
+    "axial_force_hard_limit_relative_to_baseline_N": 2.0,
+    "maximum_approach_distance_m": 0.003,
+    "approach_speed_m_s": 0.0005,
+    "state_timeout_s": 8.0,
+    "relative_dynamics_factor": 1.0,
+    "maximum_start_translation_error_m": 0.005,
+    "maximum_start_rotation_error_deg": 5.0,
+    "maximum_baseline_abs_dq_rad_s": 0.01,
+    "joint_margin_rad": 0.12,
+    "workspace_bounds_m": {
+      "min_xyz": [0.57, 0.30, 0.08],
+      "max_xyz": [0.63, 0.35, 0.15]
+    },
+    "thread_ready_reference_capture": "recordings/bolt_preinsert_wrench_baselines_v1/20260812_200814_881108_bolt_thread_ready_supported_wrench_baseline",
+    "gripper_held_width_max_m": 0.002,
+    "output_dir": "recordings/bolt_contact_search_trials_v1",
+    "commanded_frame": "EE",
+    "required_EE_T_K": "IDENTITY",
+    "runtime_stop_implementation": "K-frame callback guard plus non-RT stop thread",
+    "physical_execution_commissioned": true,
+    "physical_execution_commissioning_basis": {
+      "preview_date": "2026-08-12",
+      "thread_ready_translation_error_m": 0.003276,
+      "thread_ready_rotation_error_deg": 0.626,
+      "hand_width_m": 0.000756,
+      "hand_is_grasped": true,
+      "EE_T_K_identity_error": 0.0,
+      "live_baseline_F_Kz_N": -1.842315,
+      "live_baseline_std_N": 0.037788,
+      "maximum_baseline_abs_dq_rad_s": 0.003853,
+      "preview_result": "PASSED_WITH_NO_BLOCKERS"
+    },
+    "first_physical_trial": {
+      "capture": "recordings/bolt_contact_search_trials_v1/20260812_203000_971721_bolt_contact_search",
+      "result": "contact_detected",
+      "contact_persistence_s": 0.1,
+      "callback_stop_to_motion_preempt_s": 0.015,
+      "maximum_travel_m": 0.000167679,
+      "peak_force_delta_N": 1.047317,
+      "hard_force_samples": 0,
+      "motion_error": "expected preemption after guarded contact stop"
+    }
+  },
+  "rotation_threading": {
+    "enabled": false,
+    "all_thresholds": "NOT_CALIBRATED"
+  }
+}

@@ -8,4 +8,9 @@ venv/
 fr3_real/recordings/
 fr3_real/eval_logs/
 fr3_real/shadow_logs/
+fr3_real/diagnostics/
+fr3_real/configs/*tracker*.xlsx
+fr3_real/configs/fr3_phase_sampling_*.json
 fr3_real/model-running/streaming/build/
+fr3_real/calibration/*.json
+fr3_real/calibration/.backups/

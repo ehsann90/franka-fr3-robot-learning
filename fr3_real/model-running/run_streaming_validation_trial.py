@@ -22,10 +22,13 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from grid_utils import basket_polygon_from_points, point_in_polygon_xy
-from repo_paths import CONFIGS_DIR, EVAL_LOGS_DIR
+from repo_paths import CONFIGS_DIR, EVAL_LOGS_DIR, FR3_ROOT
 
 
 RUN_DIR = Path(__file__).resolve().parent
+# All live-run relative paths are owned by model-running/ so the orchestrator
+# behaves the same when launched from the repository root or another directory.
+ROOT = RUN_DIR
 
 
 def run(command: list[str], *, capture: bool = False) -> subprocess.CompletedProcess[str]:
@@ -37,6 +40,45 @@ def run(command: list[str], *, capture: bool = False) -> subprocess.CompletedPro
         if completed.stderr:
             print(completed.stderr, end="", file=sys.stderr)
     return completed
+
+
+def _resolved_path(value: str | Path) -> Path:
+    """Resolve a manifest path across the supported FR3 launch directories."""
+    path = Path(value)
+    if path.is_absolute():
+        return path.resolve()
+    for base in (Path.cwd(), RUN_DIR, FR3_ROOT, FR3_ROOT.parent):
+        candidate = base / path
+        if candidate.exists():
+            return candidate.resolve()
+    return (Path.cwd() / path).resolve()
+
+
+def _require_unrecorded_trial(args: argparse.Namespace, manifest: str) -> None:
+    """Prevent accidental physical reruns of completed PASS or FAIL trial IDs."""
+    if args.no_record:
+        return
+    results_path = EVAL_LOGS_DIR / "fr3_policy_eval_results.jsonl"
+    if not results_path.exists():
+        return
+    manifest_path = _resolved_path(manifest)
+    for line in results_path.read_text().splitlines():
+        if not line:
+            continue
+        row = json.loads(line)
+        row_manifest = row.get("manifest")
+        if (
+            row_manifest
+            and _resolved_path(row_manifest) == manifest_path
+            and row.get("eval_id") == args.eval_id
+            and row.get("trial") == args.trial
+            and row.get("checkpoint") == args.checkpoint
+            and row.get("outcome") in {"PASS", "FAIL"}
+        ):
+            raise SystemExit(
+                f"Trial already recorded as {row['outcome']} at {row.get('stage')}: "
+                f"{args.eval_id} trial {args.trial}. Use the next trial number."
+            )
 
 
 def main() -> None:
@@ -68,8 +110,27 @@ def main() -> None:
         help="Reset the arm to policy start and use an arbitrary manually placed cube.",
     )
     parser.add_argument("--release-threshold", type=float, default=0.10)
-    parser.add_argument("--replan-at-step", type=int, default=8)
-    parser.add_argument("--max-steady-latency", type=float, default=0.75)
+    parser.add_argument(
+        "--replan-at-step",
+        type=int,
+        default=8,
+        help=(
+            "Request the next action chunk after this many executed actions. "
+            "The 15-step policy horizon leaves 0.867 s of coverage at the default."
+        ),
+    )
+    parser.add_argument(
+        "--warmup-iterations",
+        type=int,
+        default=30,
+        help="Number of real-camera policy calls used to check steady-state latency before setup.",
+    )
+    parser.add_argument(
+        "--max-steady-latency",
+        type=float,
+        default=0.55,
+        help="Reject pre-setup warmup if any steady inference exceeds this many seconds.",
+    )
     parser.add_argument(
         "--guard-margin",
         type=float,
@@ -114,6 +175,7 @@ def main() -> None:
         raise SystemExit("Refusing robot motion without --run")
 
     manifest = str(args.manifest)
+    _require_unrecorded_trial(args, manifest)
     common = [
         sys.executable,
         "run_fr3_policy_eval_trial.py",
@@ -144,15 +206,8 @@ def main() -> None:
     )
     if args.manual_target and args.manual_live:
         raise SystemExit("Use only one of --manual-target or --manual-live")
-    setup_flags = ["--setup-only"]
-    if args.manual_target:
-        setup_flags.append("--manual-target")
-    if args.manual_live:
-        setup_flags.append("--manual-live")
-    setup = run(common + setup_flags)
-    if setup.returncode:
-        raise SystemExit("Setup failed; no policy rollout was started")
-
+    # Run this before basket-to-cell setup so a server timing rejection never
+    # leaves a cube at an evaluation position without a policy rollout.
     warmup = run(
         [
             sys.executable,
@@ -166,7 +221,7 @@ def main() -> None:
             "--checkpoint-label",
             args.checkpoint,
             "--iterations",
-            "3",
+            str(args.warmup_iterations),
             "--max-steady-latency",
             str(args.max_steady_latency),
         ]
@@ -177,10 +232,19 @@ def main() -> None:
             manifest,
             "infrastructure",
             "policy server failed pre-FCI warmup or latency validation",
-            recover=not args.manual_live,
+            recover=False,
             invalid=True,
         )
         raise SystemExit(3)
+
+    setup_flags = ["--setup-only"]
+    if args.manual_target:
+        setup_flags.append("--manual-target")
+    if args.manual_live:
+        setup_flags.append("--manual-live")
+    setup = run(common + setup_flags)
+    if setup.returncode:
+        raise SystemExit("Setup failed; no policy rollout was started")
 
     streamer_binary = {
         "current": "./streaming/build/fr3_joint_velocity_streamer",
@@ -553,13 +617,15 @@ def _finish(
     if args.no_record:
         print(f"[TRIAL] no-record commissioning result={outcome} stage={stage} notes={notes}")
     else:
-        results_path = ROOT / "eval_logs/fr3_policy_eval_results.jsonl"
+        results_path = EVAL_LOGS_DIR / "fr3_policy_eval_results.jsonl"
         if results_path.exists():
             existing = [
                 json.loads(line) for line in results_path.read_text().splitlines() if line
             ]
+            manifest_path = _resolved_path(manifest)
             replace_invalid = any(
-                row.get("manifest") == manifest
+                row.get("manifest")
+                and _resolved_path(row["manifest"]) == manifest_path
                 and row.get("eval_id") == args.eval_id
                 and row.get("trial") == args.trial
                 and row.get("checkpoint") == args.checkpoint

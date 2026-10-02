@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_name": "bolt",
+  "language_prompt": "insert the 3d printed bolt into the bracket hole and fasten it",
+  "source_episode": "recordings/bolt_manual_raw_v1/20260812_172301_bolt_manual_0001_S1_CENTER",
+  "execution_enabled": false,
+  "camera_recording_enabled": false,
+  "command_rate_hz": 15.0,
+  "source_use": "phase-segmented replay commissioning only; operator-visible source excluded from BC",
+  "ratchet_limits_calibration": "calibration/bolt_ratchet_limits_v1.json",
+  "thread_geometry_calibration": "calibration/bolt_thread_geometry_v1.json",
+  "wrist_dynamic_model_calibration": "calibration/bolt_wrist_dynamic_model_v1.json",
+  "approved_hard_negative_residual_cutoff_Nm": -0.538305,
+  "contact_controller_status": "NOT_COMMISSIONED_FOR_REPLAY",
+  "jam_detector_status": "NOT_CALIBRATED",
+  "seated_detector_status": "NOT_CALIBRATED",
+  "gripper_transition_source": "operator_marked_discrete_state",
+  "literal_joint_replay_allowed": false
+}

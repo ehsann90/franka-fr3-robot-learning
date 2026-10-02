@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "robot_ip": "172.16.0.2",
+  "bracket_slot": "B4",
+  "note": "REVISED 2026-08-17 after a real live fault: the true-1.0x/v3-caps attempt (episode 5, 20260817_104550_..._0005_B4_...) aborted mid bracket_transport_place_closed with libfranka reflex joint_motion_generator_velocity_discontinuity -- a real controller-level command-smoothness fault that offline validation cannot predict, not just a preflight cap check. This revision runs at 90% speed (playback_time_scale = 10/9 = 1.111111, this codebase's larger-is-slower convention) on fr3_retimed_joint_trajectory_bracket_highcap_v2 (1.9/10.0/260.0) instead of v3 (1.9/14.0/260.0) -- at this slower speed B4's own peaks (approach 1.11/7.32/97.9, transport 1.44/8.14/110.6, retreat 1.16/9.97/103.9 -- velocity/accel/jerk) fit under v2's caps without needing v3's raised acceleration headroom at all, and v2 is the tier already proven live end-to-end (all three stages, no faults) on B3's full recorded episode. transport_place_closed (the stage that faulted) requires its own live prepare-controller-preview before re-flipping execution_enabled true; approach_open/retreat_open completed live successfully once already but under a different binary/scale combo, so they are also reset to false pending confirmation.",
+  "candidate": "recordings/bracket_manual_replay_ik_preview_v1/20260817_104202_bracket_manual_exact_pose_rebalanced_ik_candidate.csv",
+  "binary": "model-running/streaming/build/fr3_retimed_joint_trajectory_bracket_highcap_v2",
+  "output_dir": "recordings/bracket_manual_replay_1x_highcap_trials_v1",
+  "command_rate_hz": 15.0,
+  "playback_time_scale": 1.111111,
+  "offline_validation_rate_hz": 1000.0,
+  "velocity_cap_rad_s": 1.9,
+  "acceleration_cap_rad_s2": 10.0,
+  "jerk_cap_rad_s3": 260.0,
+  "idle_edge_trim": {
+    "enabled": true,
+    "interval_velocity_threshold_rad_s": 0.005,
+    "source_time_buffer_s": 0.2
+  },
+  "controller_start_tolerance_rad": 0.005,
+  "reset_relative_dynamics_factor": 0.05,
+  "reset_maximum_joint_delta_rad": 0.5,
+  "reset_maximum_segments": 3,
+  "reset_terminal_tolerance_rad": 0.01,
+  "reset_workspace_bounds_m": {
+    "min_xyz": [0.21, -0.53, -0.04],
+    "max_xyz": [0.71, 0.4, 0.32]
+  },
+  "minimum_open_hand_width_m": 0.038,
+  "maximum_physical_trials_per_stage": 3,
+  "collision_reflex_settings": "UNCHANGED",
+  "gripper": {
+    "enabled": true,
+    "open_speed_m_s": 0.05,
+    "minimum_open_width_m": 0.038,
+    "monitor_hz": 10.0,
+    "grasp_target_width_m": 0.03,
+    "grasp_speed_m_s": 0.02,
+    "grasp_force_n": 15.0,
+    "epsilon_inner_m": 0.01,
+    "epsilon_outer_m": 0.01,
+    "held_width_min_m": 0.02,
+    "held_width_max_m": 0.04,
+    "grasp_pose_tolerance_rad": 0.01,
+    "basis": "same calibrated grasp parameters proven live on B1/B2/B3; unaffected by the raised arm-motion caps or bracket position",
+    "maximum_physical_trials": 3
+  },
+  "commissioning_basis": {
+    "offline_validation_date": "2026-08-17",
+    "offline_result": "PASSED at playback_time_scale 1.111111 (90% speed) against fr3_retimed_joint_trajectory_bracket_highcap_v2: approach_open 7.32/97.94, transport_place_closed 8.14/110.56, retreat_open 9.97/103.87 (accel/jerk rad/s^2 / rad/s^3), all under the 10.0/260.0 caps; peak velocities 1.11/1.44/1.16 rad/s all under the 1.9 cap. transport_place_closed still needs its own live prepare-controller-preview before re-flipping (it's the stage that faulted at true 1.0x/v3 caps in episode 5)."
+  },
+  "stages": {
+    "approach_open": {
+      "execution_enabled": true,
+      "execution_enabled_basis": "live prepare-controller-preview passed 2026-08-17 at playback_time_scale 1.111111 against fr3_retimed_joint_trajectory_bracket_highcap_v2 (object-aware).",
+      "workspace_bounds_m": {
+        "min_xyz": [0.21, -0.53, -0.04],
+        "max_xyz": [0.71, 0.4, 0.32]
+      }
+    },
+    "transport_place_closed": {
+      "execution_enabled": true,
+      "execution_enabled_basis": "live prepare-controller-preview passed 2026-08-17 at playback_time_scale 1.111111 against fr3_retimed_joint_trajectory_bracket_highcap_v2, both empty-handed reset (2 segments, terminal error 0.000217 rad) and object-aware (live start error 0.000246 rad, predicted path within bounds) -- this is the stage that faulted at true 1.0x/v3 caps, now re-verified live at the corrected combo.",
+      "workspace_bounds_m": {
+        "min_xyz": [0.21, -0.53, -0.04],
+        "max_xyz": [0.71, 0.4, 0.32]
+      }
+    },
+    "retreat_open": {
+      "execution_enabled": true,
+      "execution_enabled_basis": "live prepare-controller-preview passed 2026-08-17 at playback_time_scale 1.111111 against fr3_retimed_joint_trajectory_bracket_highcap_v2 (object-aware). Never reached live before (the true-1.0x/v3 run faulted at transport_place_closed first).",
+      "workspace_bounds_m": {
+        "min_xyz": [0.21, -0.53, -0.04],
+        "max_xyz": [0.71, 0.4, 0.32]
+      }
+    }
+  }
+}

@@ -33,6 +33,10 @@ STOP_REASONS: Final = {
     5: "watchdog",
     6: "predicted_guard",
     7: "stale_plan",
+    # Published by the streamer just before a libfranka exception (a reflex)
+    # tears down its control loop, so the feeder reports the cause instead of an
+    # opaque "no state acknowledgement" timeout.
+    8: "controller_fault",
 }
 
 

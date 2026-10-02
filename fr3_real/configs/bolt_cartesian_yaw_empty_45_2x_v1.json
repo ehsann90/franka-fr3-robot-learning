@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "robot_ip": "172.16.0.2",
+  "scope": "empty-Hand no-bolt +45-degree scale-up of the separately compiled 0.060 rad/s Cartesian-yaw controller",
+  "test_angle_deg": 45.0,
+  "peak_angular_speed_rad_s": 0.06,
+  "commanded_linear_velocity_m_s": [0.0, 0.0, 0.0],
+  "maximum_tcp_translation_m": 0.0003,
+  "hard_absolute_axial_delta_N": 2.0,
+  "q7_cable_safe_interval_rad": [-0.15688785910606384, 2.998908281326294],
+  "collision_reflex_settings": "UNCHANGED",
+  "controller_status": "2X_EMPTY_5_DEG_PENDING_THEN_READ_ONLY_PREVIEW",
+  "execution_enabled": false,
+  "maximum_physical_trial_count": 1,
+  "binary": "model-running/streaming/build/fr3_cartesian_yaw_empty_45_2x",
+  "linked_libfranka": "/home/salaar/Job/libfranka/build/libfranka.so.0.21",
+  "output_dir": "recordings/bolt_cartesian_yaw_empty_45_2x_trials_v1",
+  "required_setup": "EMPTY HAND; NO BOLT; clear local path",
+  "hand_connection_enabled": false,
+  "hand_commands_enabled": false,
+  "axial_force_command_enabled": false,
+  "contact_threading_enabled": false
+}

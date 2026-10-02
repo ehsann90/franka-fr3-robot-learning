@@ -1,0 +1,294 @@
+{
+  "schema_version": 1,
+  "kind": "read_only_bracket_cell_geometry_preview",
+  "coordinate_frame": "robot_base_end_effector_origin_m",
+  "raw_corner_file": "/home/salaar/Job/franka-fr3-robot-learning/fr3_real/calibration/bracket_workspace_corners_v1/probed_points.json",
+  "normalized_corners_xyz_m": {
+    "bracket_xmin_ymin": [
+      0.2134,
+      -0.4763,
+      0.0116
+    ],
+    "bracket_xmin_ymax": [
+      0.2585,
+      0.3797,
+      0.013
+    ],
+    "bracket_xmax_ymin": [
+      0.6246,
+      -0.4645,
+      0.0131
+    ],
+    "bracket_xmax_ymax": [
+      0.6341,
+      0.4255,
+      0.0192
+    ]
+  },
+  "warnings": [
+    "xmax: recorded ymin/ymax labels are reversed; corrected only in this preview",
+    "corner EE height varies by 7.6 mm; interpolated Z is not a calibrated release height"
+  ],
+  "accepted_grasp_count": 92,
+  "accepted_grasp_xy_min_m": [
+    0.24768847227096558,
+    -0.4755496382713318
+  ],
+  "accepted_grasp_xy_max_m": [
+    0.481136292219162,
+    0.3906075954437256
+  ],
+  "accepted_grasp_hull_xy_m": [
+    [
+      0.24768847227096558,
+      0.22112353146076202
+    ],
+    [
+      0.2594697177410126,
+      -0.24434183537960052
+    ],
+    [
+      0.2697029113769531,
+      -0.4683300256729126
+    ],
+    [
+      0.38016465306282043,
+      -0.4755496382713318
+    ],
+    [
+      0.481136292219162,
+      0.3906075954437256
+    ],
+    [
+      0.38978204131126404,
+      0.3893243670463562
+    ],
+    [
+      0.323343425989151,
+      0.36466220021247864
+    ],
+    [
+      0.249851256608963,
+      0.23841209709644318
+    ]
+  ],
+  "candidates": [
+    {
+      "proposal": "P01_01",
+      "x_fraction": 0.15,
+      "y_fraction": 0.15,
+      "ee_xyz_m": [
+        0.28104,
+        -0.34536,
+        0.01214
+      ],
+      "inside_recorded_grasp_hull": true,
+      "nearest_accepted_cell": "B2",
+      "nearest_accepted_xy_distance_m": 0.01892,
+      "motion_approved": false
+    },
+    {
+      "proposal": "P01_02",
+      "x_fraction": 0.15,
+      "y_fraction": 0.325,
+      "ee_xyz_m": [
+        0.288,
+        -0.19467,
+        0.01251
+      ],
+      "inside_recorded_grasp_hull": true,
+      "nearest_accepted_cell": "B72",
+      "nearest_accepted_xy_distance_m": 0.03162,
+      "motion_approved": false
+    },
+    {
+      "proposal": "P01_03",
+      "x_fraction": 0.15,
+      "y_fraction": 0.5,
+      "ee_xyz_m": [
+        0.29496,
+        -0.04398,
+        0.01288
+      ],
+      "inside_recorded_grasp_hull": true,
+      "nearest_accepted_cell": "B78",
+      "nearest_accepted_xy_distance_m": 0.03398,
+      "motion_approved": false
+    },
+    {
+      "proposal": "P01_04",
+      "x_fraction": 0.15,
+      "y_fraction": 0.675,
+      "ee_xyz_m": [
+        0.30192,
+        0.10671,
+        0.01325
+      ],
+      "inside_recorded_grasp_hull": true,
+      "nearest_accepted_cell": "B82",
+      "nearest_accepted_xy_distance_m": 0.02178,
+      "motion_approved": false
+    },
+    {
+      "proposal": "P01_05",
+      "x_fraction": 0.15,
+      "y_fraction": 0.85,
+      "ee_xyz_m": [
+        0.30888,
+        0.2574,
+        0.01361
+      ],
+      "inside_recorded_grasp_hull": true,
+      "nearest_accepted_cell": "B87",
+      "nearest_accepted_xy_distance_m": 0.01325,
+      "motion_approved": false
+    },
+    {
+      "proposal": "P02_01",
+      "x_fraction": 0.5,
+      "y_fraction": 0.15,
+      "ee_xyz_m": [
+        0.4231,
+        -0.33945,
+        0.01291
+      ],
+      "inside_recorded_grasp_hull": false,
+      "nearest_accepted_cell": "B13",
+      "nearest_accepted_xy_distance_m": 0.05128,
+      "motion_approved": false
+    },
+    {
+      "proposal": "P02_02",
+      "x_fraction": 0.5,
+      "y_fraction": 0.325,
+      "ee_xyz_m": [
+        0.42787,
+        -0.18668,
+        0.01357
+      ],
+      "inside_recorded_grasp_hull": false,
+      "nearest_accepted_cell": "B19",
+      "nearest_accepted_xy_distance_m": 0.03653,
+      "motion_approved": false
+    },
+    {
+      "proposal": "P02_03",
+      "x_fraction": 0.5,
+      "y_fraction": 0.5,
+      "ee_xyz_m": [
+        0.43265,
+        -0.0339,
+        0.01422
+      ],
+      "inside_recorded_grasp_hull": false,
+      "nearest_accepted_cell": "B25",
+      "nearest_accepted_xy_distance_m": 0.03212,
+      "motion_approved": false
+    },
+    {
+      "proposal": "P02_04",
+      "x_fraction": 0.5,
+      "y_fraction": 0.675,
+      "ee_xyz_m": [
+        0.43743,
+        0.11887,
+        0.01488
+      ],
+      "inside_recorded_grasp_hull": true,
+      "nearest_accepted_cell": "B32",
+      "nearest_accepted_xy_distance_m": 0.02239,
+      "motion_approved": false
+    },
+    {
+      "proposal": "P02_05",
+      "x_fraction": 0.5,
+      "y_fraction": 0.85,
+      "ee_xyz_m": [
+        0.4422,
+        0.27165,
+        0.01554
+      ],
+      "inside_recorded_grasp_hull": true,
+      "nearest_accepted_cell": "B38",
+      "nearest_accepted_xy_distance_m": 0.00093,
+      "motion_approved": false
+    },
+    {
+      "proposal": "P03_01",
+      "x_fraction": 0.85,
+      "y_fraction": 0.15,
+      "ee_xyz_m": [
+        0.56515,
+        -0.33354,
+        0.01368
+      ],
+      "inside_recorded_grasp_hull": false,
+      "nearest_accepted_cell": "B13",
+      "nearest_accepted_xy_distance_m": 0.19047,
+      "motion_approved": false
+    },
+    {
+      "proposal": "P03_02",
+      "x_fraction": 0.85,
+      "y_fraction": 0.325,
+      "ee_xyz_m": [
+        0.56774,
+        -0.17868,
+        0.01463
+      ],
+      "inside_recorded_grasp_hull": false,
+      "nearest_accepted_cell": "B20",
+      "nearest_accepted_xy_distance_m": 0.17534,
+      "motion_approved": false
+    },
+    {
+      "proposal": "P03_03",
+      "x_fraction": 0.85,
+      "y_fraction": 0.5,
+      "ee_xyz_m": [
+        0.57034,
+        -0.02382,
+        0.01557
+      ],
+      "inside_recorded_grasp_hull": false,
+      "nearest_accepted_cell": "B26",
+      "nearest_accepted_xy_distance_m": 0.16731,
+      "motion_approved": false
+    },
+    {
+      "proposal": "P03_04",
+      "x_fraction": 0.85,
+      "y_fraction": 0.675,
+      "ee_xyz_m": [
+        0.57294,
+        0.13104,
+        0.01652
+      ],
+      "inside_recorded_grasp_hull": false,
+      "nearest_accepted_cell": "B35",
+      "nearest_accepted_xy_distance_m": 0.14481,
+      "motion_approved": false
+    },
+    {
+      "proposal": "P03_05",
+      "x_fraction": 0.85,
+      "y_fraction": 0.85,
+      "ee_xyz_m": [
+        0.57553,
+        0.28589,
+        0.01746
+      ],
+      "inside_recorded_grasp_hull": false,
+      "nearest_accepted_cell": "B39",
+      "nearest_accepted_xy_distance_m": 0.12349,
+      "motion_approved": false
+    }
+  ],
+  "execution_enabled": false,
+  "required_before_execution": [
+    "confirm normalized physical corner order",
+    "measure bracket footprint and release/grasp offset",
+    "check clearances and reachability for each candidate",
+    "commission new wall-to-cell and cell-to-wall paths without reversing pin-contact motion"
+  ]
+}

@@ -8,7 +8,8 @@ Usage (on the machine connected to the robot, with `pip install franky-control`)
 
 Workflow per point:
   1. Put the arm in guide mode (grip the wrist buttons / enable hand-guiding in Desk).
-  2. Drag the gripper TIP to the point you want to record (pad corner, table surface, grid cell...).
+  2. Guide the Hand to each target with the same grasp orientation and height.
+     The saved XYZ is the robot end-effector origin, not the fingertip or bracket center.
   3. Type a label (e.g. "pad_center", "table_z", "cell_x044_yn010") and press Enter.
      - press Enter with an empty label to re-read without saving
      - type "q" to finish
@@ -63,7 +64,7 @@ while True:
     if label in points:
         print(f"    [overwriting previous '{label}': {points[label]}]")
     points[label] = [round(x, 4), round(y, 4), round(z, 4)]
-    # append to md + rewrite json atomically after every point (crash-safe)
+    # Append to the human-readable log and update the machine-readable point map.
     stamp = time.strftime("%Y-%m-%d %H:%M:%S")
     with md_path.open("a") as f:
         f.write(f"| {label} | {x:+.4f} | {y:+.4f} | {z:+.4f} | {stamp} |\n")

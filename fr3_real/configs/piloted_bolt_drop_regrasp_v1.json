@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "task_name": "bolt",
+  "language_prompt": "insert the 3d printed bolt into the bracket hole and fasten it",
+  "capture_scope": "preinsert_through_thread_ready_only",
+  "robot_ip": "172.16.0.2",
+  "output_dir": "recordings/piloted_bolt_drop_regrasp_trajectories_v1",
+  "robot_sample_hz": 50.0,
+  "gripper_sample_hz": 10.0,
+  "source_preinsert_trajectory": "recordings/piloted_bolt_preinsert_trajectories_v1/20260812_130029_bolt_preinsert_pilot_0001_S1_CENTER",
+  "screw_slot": "S1",
+  "screw_grasp_style": "CENTER",
+  "mechanical_normalization": {
+    "method": "release_into_guide_then_regrasp_head",
+    "guide_holds_bolt_upright": true,
+    "release_only_after_bolt_is_self_supported": true,
+    "endpoint": "bolt_upright_regrasped_at_head_thread_ready",
+    "rotation_during_capture": false
+  },
+  "replay": {
+    "enabled": false,
+    "reason": "object replay remains disabled until arm-only commissioning passes",
+    "command_rate_hz": 15.0,
+    "stage_stationary_trim_s": {
+      "lower_held": {
+        "start_s": 24.7,
+        "end_s": 2.18,
+        "basis": "preserves 1.0 s before measured q-motion onset and 1.0 s after measured motion stop"
+      },
+      "reposition_regrasp_open": {
+        "start_s": 25.7,
+        "end_s": 3.42,
+        "basis": "preserves 1.0 s before measured q-motion onset and 1.0 s after measured motion stop"
+      }
+    },
+    "arm_only_commissioning": {
+      "enabled": true,
+      "trajectory": "20260812_133722_bolt_drop_regrasp_pilot_0001_S1_CENTER",
+      "empty_bolt_path_only": true,
+      "gripper_commands_enabled": false,
+      "playback_time_scale": 4.0,
+      "stage_robot_global_dynamics_factor": 1.0,
+      "relative_dynamics_factor": 0.3,
+      "joint_margin_rad": 0.12,
+      "start_joint_tolerance_rad": 0.005,
+      "terminal_joint_tolerance_rad": 0.02,
+      "maximum_scaled_target_velocity_rad_s": 0.3,
+      "maximum_target_step_rad": 0.06,
+      "workspace_bounds_m": {
+        "min_xyz": [0.57, 0.30, 0.08],
+        "max_xyz": [0.63, 0.35, 0.15]
+      },
+      "maximum_fk_path_error_m": 0.005,
+      "state_timeout_s": 180.0,
+      "automatic_reset_to_start": {
+        "enabled": true,
+        "relative_dynamics_factor": 0.05,
+        "joint_margin_rad": 0.12,
+        "maximum_joint_delta_rad": 1.6,
+        "workspace_bounds_m": {
+          "min_xyz": [0.56, -0.11, 0.09],
+          "max_xyz": [0.66, 0.35, 0.21]
+        },
+        "target_fk_error_limit_m": 0.005,
+        "terminal_joint_tolerance_rad": 0.005,
+        "commissioning_basis": "read-only preview reset: max joint delta 1.507471 rad; xyz [0.587556,-0.080718,0.121172] to [0.631346,0.324533,0.182429]; 1.6 rad gate previously passed for bolt PREINSERT reset"
+      },
+      "commissioning_basis": {
+        "source_capture": "accepted, 4516 samples, 50Hz, zero errors",
+        "source_xyz_min": [0.592722, 0.32395, 0.099708],
+        "source_xyz_max": [0.605173, 0.333833, 0.127662],
+        "maximum_source_joint_velocity_rad_s": 0.885415,
+        "purpose": "first arm-only replay; no bolt, no Hand command, no threading",
+        "stationary_trim_note": "trimmed replay is a strict subset of the physically passed path; endpoint differences are below 0.0005 rad"
+      }
+    },
+    "object_normalization_execution": {
+      "enabled": true,
+      "trajectory": "20260812_133722_bolt_drop_regrasp_pilot_0001_S1_CENTER",
+      "required_start": "bolt securely held at validated no-contact PREINSERT",
+      "playback_time_scale": 4.0,
+      "stage_robot_global_dynamics_factor": 1.0,
+      "relative_dynamics_factor": 0.3,
+      "joint_margin_rad": 0.12,
+      "start_joint_tolerance_rad": 0.005,
+      "terminal_joint_tolerance_rad": 0.02,
+      "maximum_scaled_target_velocity_rad_s": 0.3,
+      "maximum_target_step_rad": 0.06,
+      "workspace_bounds_m": {
+        "min_xyz": [0.57, 0.30, 0.08],
+        "max_xyz": [0.63, 0.35, 0.15]
+      },
+      "maximum_fk_path_error_m": 0.005,
+      "state_timeout_s": 180.0,
+      "gripper": {
+        "held_width_calibration": "calibration/bolt_grasp_width_v2.json",
+        "calibrated_median_width_m": 0.0000013133333141013281,
+        "open_speed_m_s": 0.05,
+        "minimum_open_width_m": 0.05,
+        "grasp_target_width_m": 0.0,
+        "grasp_speed_m_s": 0.02,
+        "grasp_force_n": 15.0,
+        "epsilon_inner_m": 0.002,
+        "epsilon_outer_m": 0.002,
+        "maximum_accepted_held_width_m": 0.002,
+        "monitor_hz": 10.0,
+        "operator_visual_confirmation_required": true,
+        "width_cannot_distinguish_empty_hand": true
+      },
+      "camera_recording_enabled": false,
+      "contact_threading_enabled": false,
+      "commissioning_basis": {
+        "arm_only_lower_held_terminal_error_rad": 0.000096,
+        "arm_only_reposition_regrasp_open_terminal_error_rad": 0.000147,
+        "arm_only_result": "both stages physically passed at 4x slower",
+        "Hand_parameters": "same grasp parameters that successfully held the bolt through PREINSERT; same open speed used in successful bracket episode",
+        "limitation": "mandatory visual checks because closed-Hand width cannot distinguish the bolt from empty closure",
+        "stationary_trim_note": "removes prompt/operator dwell only; keeps one recorded second before and after motion"
+      }
+    }
+  },
+  "contact_threading": {
+    "enabled": false,
+    "contact_force_threshold": "NOT_CALIBRATED",
+    "axial_force_target": "NOT_CALIBRATED",
+    "axial_force_hard_limit": "NOT_CALIBRATED",
+    "rotational_resistance_engage_max": "NOT_CALIBRATED",
+    "rotational_resistance_jam": "NOT_CALIBRATED",
+    "rotational_resistance_tight": "NOT_CALIBRATED"
+  }
+}

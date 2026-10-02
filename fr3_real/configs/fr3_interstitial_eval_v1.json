@@ -1,0 +1,291 @@
+{
+  "description": "FR3 spatial-interpolation final test set.",
+  "training_cells_source": "all_working_cells.json",
+  "total_positions": 20,
+  "trials_per_position": 3,
+  "total_trials": 60,
+  "success_target": 30,
+  "selection": "adjacent-cell midpoints, then deterministic farthest-point sampling",
+  "positions": [
+    {
+      "x": 0.43765000000000004,
+      "y": -0.18545,
+      "table_z": 0.02435,
+      "axis": "x_midpoint",
+      "source_cells": [
+        135,
+        71
+      ],
+      "eval_id": "I01",
+      "trials": 3,
+      "role": "final_test_only",
+      "notes": "Do not use these outcomes for checkpoint selection or retraining decisions."
+    },
+    {
+      "x": 0.28295000000000003,
+      "y": 0.36705,
+      "table_z": 0.016050000000000002,
+      "axis": "x_midpoint",
+      "source_cells": [
+        22,
+        33
+      ],
+      "eval_id": "I02",
+      "trials": 3,
+      "role": "final_test_only",
+      "notes": "Do not use these outcomes for checkpoint selection or retraining decisions."
+    },
+    {
+      "x": 0.54325,
+      "y": 0.13674999999999998,
+      "table_z": 0.02355,
+      "axis": "x_midpoint",
+      "source_cells": [
+        74,
+        82
+      ],
+      "eval_id": "I03",
+      "trials": 3,
+      "role": "final_test_only",
+      "notes": "Do not use these outcomes for checkpoint selection or retraining decisions."
+    },
+    {
+      "x": 0.27985,
+      "y": -0.41015,
+      "table_z": 0.02695,
+      "axis": "x_midpoint",
+      "source_cells": [
+        1,
+        12
+      ],
+      "eval_id": "I04",
+      "trials": 3,
+      "role": "final_test_only",
+      "notes": "Do not use these outcomes for checkpoint selection or retraining decisions."
+    },
+    {
+      "x": 0.36005,
+      "y": 0.0204,
+      "table_z": 0.02155,
+      "axis": "y_midpoint",
+      "source_cells": [
+        38,
+        39
+      ],
+      "eval_id": "I05",
+      "trials": 3,
+      "role": "final_test_only",
+      "notes": "Do not use these outcomes for checkpoint selection or retraining decisions."
+    },
+    {
+      "x": 0.6439999999999999,
+      "y": -0.19305,
+      "table_z": 0.02425,
+      "axis": "y_midpoint",
+      "source_cells": [
+        93,
+        94
+      ],
+      "eval_id": "I06",
+      "trials": 3,
+      "role": "final_test_only",
+      "notes": "Do not use these outcomes for checkpoint selection or retraining decisions."
+    },
+    {
+      "x": 0.47055,
+      "y": -0.39249999999999996,
+      "table_z": 0.0252,
+      "axis": "x_midpoint",
+      "source_cells": [
+        52,
+        60
+      ],
+      "eval_id": "I07",
+      "trials": 3,
+      "role": "final_test_only",
+      "notes": "Do not use these outcomes for checkpoint selection or retraining decisions."
+    },
+    {
+      "x": 0.53365,
+      "y": -0.0353,
+      "table_z": 0.02475,
+      "axis": "y_midpoint",
+      "source_cells": [
+        120,
+        98
+      ],
+      "eval_id": "I08",
+      "trials": 3,
+      "role": "final_test_only",
+      "notes": "Do not use these outcomes for checkpoint selection or retraining decisions."
+    },
+    {
+      "x": 0.25715,
+      "y": -0.24945,
+      "table_z": 0.0245,
+      "axis": "x_midpoint",
+      "source_cells": [
+        133,
+        108
+      ],
+      "eval_id": "I09",
+      "trials": 3,
+      "role": "final_test_only",
+      "notes": "Do not use these outcomes for checkpoint selection or retraining decisions."
+    },
+    {
+      "x": 0.5849,
+      "y": -0.3078,
+      "table_z": 0.0242,
+      "axis": "x_midpoint",
+      "source_cells": [
+        76,
+        84
+      ],
+      "eval_id": "I10",
+      "trials": 3,
+      "role": "final_test_only",
+      "notes": "Do not use these outcomes for checkpoint selection or retraining decisions."
+    },
+    {
+      "x": 0.38305,
+      "y": -0.2996,
+      "table_z": 0.02515,
+      "axis": "x_midpoint",
+      "source_cells": [
+        154,
+        54
+      ],
+      "eval_id": "I11",
+      "trials": 3,
+      "role": "final_test_only",
+      "notes": "Do not use these outcomes for checkpoint selection or retraining decisions."
+    },
+    {
+      "x": 0.44005,
+      "y": 0.09815,
+      "table_z": 0.02205,
+      "axis": "y_midpoint",
+      "source_cells": [
+        58,
+        59
+      ],
+      "eval_id": "I12",
+      "trials": 3,
+      "role": "final_test_only",
+      "notes": "Do not use these outcomes for checkpoint selection or retraining decisions."
+    },
+    {
+      "x": 0.3569,
+      "y": -0.11565,
+      "table_z": 0.0232,
+      "axis": "y_midpoint",
+      "source_cells": [
+        49,
+        114
+      ],
+      "eval_id": "I13",
+      "trials": 3,
+      "role": "final_test_only",
+      "notes": "Do not use these outcomes for checkpoint selection or retraining decisions."
+    },
+    {
+      "x": 0.5339,
+      "y": -0.1436,
+      "table_z": 0.0248,
+      "axis": "y_midpoint",
+      "source_cells": [
+        140,
+        96
+      ],
+      "eval_id": "I14",
+      "trials": 3,
+      "role": "final_test_only",
+      "notes": "Do not use these outcomes for checkpoint selection or retraining decisions."
+    },
+    {
+      "x": 0.4877,
+      "y": -0.27785,
+      "table_z": 0.0245,
+      "axis": "y_midpoint",
+      "source_cells": [
+        61,
+        62
+      ],
+      "eval_id": "I15",
+      "trials": 3,
+      "role": "final_test_only",
+      "notes": "Do not use these outcomes for checkpoint selection or retraining decisions."
+    },
+    {
+      "x": 0.6255,
+      "y": -0.01,
+      "table_z": 0.0247,
+      "axis": "x_midpoint",
+      "source_cells": [
+        88,
+        96
+      ],
+      "eval_id": "I16",
+      "trials": 3,
+      "role": "final_test_only",
+      "notes": "Do not use these outcomes for checkpoint selection or retraining decisions."
+    },
+    {
+      "x": 0.44355,
+      "y": -0.0534,
+      "table_z": 0.02305,
+      "axis": "y_midpoint",
+      "source_cells": [
+        56,
+        57
+      ],
+      "eval_id": "I17",
+      "trials": 3,
+      "role": "final_test_only",
+      "notes": "Do not use these outcomes for checkpoint selection or retraining decisions."
+    },
+    {
+      "x": 0.32175,
+      "y": -0.19135000000000002,
+      "table_z": 0.02395,
+      "axis": "x_midpoint",
+      "source_cells": [
+        134,
+        37
+      ],
+      "eval_id": "I18",
+      "trials": 3,
+      "role": "final_test_only",
+      "notes": "Do not use these outcomes for checkpoint selection or retraining decisions."
+    },
+    {
+      "x": 0.3857,
+      "y": -0.37985,
+      "table_z": 0.025750000000000002,
+      "axis": "y_midpoint",
+      "source_cells": [
+        44,
+        103
+      ],
+      "eval_id": "I19",
+      "trials": 3,
+      "role": "final_test_only",
+      "notes": "Do not use these outcomes for checkpoint selection or retraining decisions."
+    },
+    {
+      "x": 0.27590000000000003,
+      "y": -0.3323,
+      "table_z": 0.0258,
+      "axis": "x_midpoint",
+      "source_cells": [
+        2,
+        13
+      ],
+      "eval_id": "I20",
+      "trials": 3,
+      "role": "final_test_only",
+      "notes": "Do not use these outcomes for checkpoint selection or retraining decisions."
+    }
+  ]
+}

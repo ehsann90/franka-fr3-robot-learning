@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "oversized-h1",
+        "value": "*",
+        "files": [
+          "docs/FR3_PROJECT_UPDATE_FOR_HUYUE_AND_DR_MEI.html"
+        ],
+        "createdAt": "2026-10-02T00:05:52.789Z",
+        "reason": "Agent: PDF source sets the report heading to 12pt and the exported PDF shows a compact title. The detector reports 2304px incorrectly."
+      }
+    ]
+  }
+}

@@ -39,8 +39,8 @@ def main() -> None:
     print(f"range: [{float(actions.min()):.6f}, {float(actions.max()):.6f}]")
     print(np.array2string(actions, precision=5, suppress_small=True))
 
-    if actions.shape != (16, 8):
-        raise RuntimeError(f"Expected action shape (16, 8), received {actions.shape}")
+    if actions.shape != (15, 8):
+        raise RuntimeError(f"Expected action shape (15, 8), received {actions.shape}")
     if not finite:
         raise RuntimeError("Policy returned NaN or infinite actions")
 

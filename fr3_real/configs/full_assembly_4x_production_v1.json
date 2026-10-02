@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "robot_ip": "172.16.0.2",
+  "scope": "cap-aware recorded-source-speed full-assembly setup profile",
+  "binary": "model-running/streaming/build/fr3_retimed_joint_trajectory",
+  "playback_time_scale": 1.0,
+  "playback_time_scale_by_stage": {
+    "bracket_approach_open": 1.828785183,
+    "bracket_transport_place_closed": 1.638624083,
+    "bracket_retreat_open": 1.439731222,
+    "bolt_approach_open": 1.780653508,
+    "bolt_transport_preinsert_closed": 1.593831378,
+    "bolt_lower_held": 1.0,
+    "bolt_reposition_regrasp_open": 1.496967261
+  },
+  "requested_speed_multiplier": 4.0,
+  "actual_stage_speed_multiplier": {
+    "bracket_approach_open": 2.187,
+    "bracket_transport_place_closed": 2.441,
+    "bracket_retreat_open": 2.778,
+    "bolt_approach_open": 2.246,
+    "bolt_transport_preinsert_closed": 2.510,
+    "bolt_lower_held": 4.000,
+    "bolt_reposition_regrasp_open": 2.672
+  },
+  "offline_validation_rate_hz": 1000.0,
+  "idle_edge_trim": {
+    "enabled": true,
+    "interval_velocity_threshold_rad_s": 0.005,
+    "source_time_buffer_s": 0.2,
+    "preserve_interior_pauses": true
+  },
+  "velocity_cap_rad_s": 1.2,
+  "acceleration_cap_rad_s2": 4.0,
+  "jerk_cap_rad_s3": 40.0,
+  "planning_cap_utilization": 0.895,
+  "collision_reflex_settings": "UNCHANGED",
+  "final_full_assembly_4x_enabled": true,
+  "controller_status": "EPISODE_7_3X_PASSED_CAP_AWARE_RECORDED_SOURCE_SPEED_SETUP_AUTHORIZED",
+  "offline_validation": {
+    "date": "2026-08-14",
+    "result": "PASSED_ALL_SEVEN_STAGES_BELOW_90_PERCENT_OF_CONFIGURED_CAPS",
+    "retimed_total_arm_stage_duration_s": 76.530,
+    "maximum_planned_velocity_rad_s": 0.995005,
+    "maximum_planned_acceleration_rad_s2": 3.573684,
+    "maximum_planned_jerk_rad_s3": 35.692814,
+    "literal_source_speed_rejected_for_six_stages": true,
+    "literal_source_speed_maxima": {
+      "velocity_rad_s": 1.81117,
+      "acceleration_rad_s2": 11.94924,
+      "jerk_rad_s3": 201.52042
+    },
+    "moving_position_knots_changed": false,
+    "stationary_edge_knots_removed": true,
+    "interior_pauses_preserved": true,
+    "endpoint_velocity_zero": true
+  },
+  "stages": {
+    "bracket_approach_open": {"production_execution_authorized": true},
+    "bracket_transport_place_closed": {"production_execution_authorized": true},
+    "bracket_retreat_open": {"production_execution_authorized": true},
+    "bolt_approach_open": {"production_execution_authorized": true},
+    "bolt_transport_preinsert_closed": {"production_execution_authorized": true},
+    "bolt_lower_held": {"production_execution_authorized": true},
+    "bolt_reposition_regrasp_open": {"production_execution_authorized": true}
+  },
+  "threading_4x": {
+    "peak_angular_speed_rad_s": 0.12,
+    "combined_production_chain_enabled": true,
+    "combined_production_chain_status": "405_DEGREE_85X3_50X3_CHAIN_AT_0_120_RAD_S_WITH_UNCHANGED_AXIAL_ADMITTANCE_AND_GUARDS",
+    "force_target_N": 1.200360,
+    "force_to_velocity_gain_m_s_per_N": 0.000416541704,
+    "maximum_axial_speed_m_s": 0.0005,
+    "hard_absolute_axial_delta_N": 2.0,
+    "hard_negative_residual_Tz_Nm": -0.5383051567216975,
+    "maximum_lateral_travel_m": 0.0003,
+    "collision_reflex_settings": "UNCHANGED"
+  }
+}

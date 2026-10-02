@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "robot_ip": "172.16.0.2",
+  "ratchet_limit_calibration": "calibration/bolt_ratchet_limits_v1.json",
+  "thread_geometry_calibration": "calibration/bolt_thread_geometry_v1.json",
+  "execution_enabled": true,
+  "required_setup": "empty Hand, no bolt, clear local path near THREAD_READY",
+  "forward_test_angle_rad": 1.5707963267948966,
+  "forward_test_angle_deg": 90.0,
+  "relative_dynamics_factor": 0.05,
+  "minimum_forward_reserve_after_test_rad": 1.2,
+  "other_joint_start_tolerance_rad": 0.1,
+  "joint_mechanical_margin_rad": 0.1,
+  "maximum_joint_delta_rad": 1.65,
+  "maximum_predicted_translation_m": 0.01,
+  "workspace_bounds_m": {
+    "min_xyz": [0.58, 0.31, 0.09],
+    "max_xyz": [0.61, 0.34, 0.115]
+  },
+  "basis": {
+    "motion_type": "q7-only JointMotion using the already working guarded reset primitive",
+    "angle": "90 degree strict subset of the operator-demonstrated 180.814 degree cable-safe interval; follows successful automatic 15 degree empty-Hand test",
+    "start_zone": "accept any q7 inside the calibrated cable-safe interval when the 90 degree target leaves at least 1.2 rad (68.75 deg) of forward reserve",
+    "dynamics": "0.05 previously passed slow arm reset commissioning",
+    "workspace": "operator-calibrated endpoint XYZ envelope expanded by more than 10 mm",
+    "contact": "none; bolt removed and Hand empty",
+    "franka_protections": "unchanged"
+  },
+  "read_only_preview_commissioning": {
+    "status": "PASSED",
+    "live_q7_rad": 0.043017,
+    "target_q7_rad": 1.613814,
+    "target_within_operator_cable_safe_interval": true,
+    "predicted_tcp_translation_mm": 0.0,
+    "execution_blockers": 0,
+    "scope": "one empty-Hand no-bolt +90 degree q7-only motion; follows completed +15 degree test"
+  },
+  "physical_execution_commissioning": {
+    "status": "PASSED",
+    "final_q7_rad": 1.613762,
+    "target_q7_error_rad": 0.000055,
+    "operator_reported_result": "complete_without_error",
+    "scope": "one empty-Hand no-bolt +90 degree q7-only forward motion"
+  }
+}

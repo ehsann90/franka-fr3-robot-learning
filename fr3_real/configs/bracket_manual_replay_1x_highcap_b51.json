@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "robot_ip": "172.16.0.2",
+  "bracket_slot": "B51",
+  "note": "B51 bracket replay at 75% speed (playback_time_scale = 1/0.75 = 1.333333) on fr3_retimed_joint_trajectory_bracket_highcap_v3 (1.9/14.0/260.0). v2 technically passed offline at this speed but transport_place_closed sat at 98% of its 10.0 accel cap -- too tight given this exact stage's fault history at similarly narrow margins on other bracket positions -- so using v3 for real headroom instead.",
+  "candidate": "recordings/bracket_manual_replay_ik_preview_v1/20260818_001113_bracket_manual_exact_pose_rebalanced_ik_candidate.csv",
+  "binary": "model-running/streaming/build/fr3_retimed_joint_trajectory_bracket_highcap_v3",
+  "output_dir": "recordings/bracket_manual_replay_1x_highcap_trials_v1",
+  "command_rate_hz": 15.0,
+  "playback_time_scale": 1.333333,
+  "offline_validation_rate_hz": 1000.0,
+  "velocity_cap_rad_s": 1.9,
+  "acceleration_cap_rad_s2": 14.0,
+  "jerk_cap_rad_s3": 260.0,
+  "idle_edge_trim": {
+    "enabled": true,
+    "interval_velocity_threshold_rad_s": 0.005,
+    "source_time_buffer_s": 0.2
+  },
+  "controller_start_tolerance_rad": 0.005,
+  "reset_relative_dynamics_factor": 0.05,
+  "reset_maximum_joint_delta_rad": 0.5,
+  "reset_maximum_segments": 3,
+  "reset_terminal_tolerance_rad": 0.01,
+  "reset_workspace_bounds_m": {
+    "min_xyz": [0.21, -0.53, -0.04],
+    "max_xyz": [0.73, 0.4, 0.32]
+  },
+  "minimum_open_hand_width_m": 0.038,
+  "maximum_physical_trials_per_stage": 3,
+  "collision_reflex_settings": "UNCHANGED",
+  "gripper": {
+    "enabled": true,
+    "open_speed_m_s": 0.05,
+    "minimum_open_width_m": 0.038,
+    "monitor_hz": 10.0,
+    "grasp_target_width_m": 0.03,
+    "grasp_speed_m_s": 0.02,
+    "grasp_force_n": 15.0,
+    "epsilon_inner_m": 0.01,
+    "epsilon_outer_m": 0.01,
+    "held_width_min_m": 0.02,
+    "held_width_max_m": 0.04,
+    "grasp_pose_tolerance_rad": 0.01,
+    "basis": "same calibrated grasp parameters proven live on B1-B50; unaffected by the raised arm-motion caps or bracket position",
+    "maximum_physical_trials": 3
+  },
+  "commissioning_basis": {
+    "offline_validation_date": "2026-08-18",
+    "offline_result": "PASSED at playback_time_scale 1.333333 (75% speed) against fr3_retimed_joint_trajectory_bracket_highcap_v3: approach_open 5.43/56.31, transport_place_closed 9.77/123.97 (70% of the 14.0 accel cap, real margin), retreat_open 2.92/29.66 (accel/jerk); peak velocities 1.08/1.32/0.79 rad/s, all under the 1.9 cap."
+  },
+  "stages": {
+    "approach_open": {
+      "execution_enabled": true,
+      "execution_enabled_basis": "no live per-stage preview -- flipped directly on offline validation per operator instruction",
+      "workspace_bounds_m": {
+        "min_xyz": [0.21, -0.53, -0.04],
+        "max_xyz": [0.73, 0.4, 0.32]
+      }
+    },
+    "transport_place_closed": {
+      "execution_enabled": true,
+      "execution_enabled_basis": "no live per-stage preview -- flipped directly on offline validation per operator instruction",
+      "workspace_bounds_m": {
+        "min_xyz": [0.21, -0.53, -0.04],
+        "max_xyz": [0.73, 0.4, 0.32]
+      }
+    },
+    "retreat_open": {
+      "execution_enabled": true,
+      "execution_enabled_basis": "no live per-stage preview -- flipped directly on offline validation per operator instruction",
+      "workspace_bounds_m": {
+        "min_xyz": [0.21, -0.53, -0.04],
+        "max_xyz": [0.73, 0.4, 0.32]
+      }
+    }
+  }
+}

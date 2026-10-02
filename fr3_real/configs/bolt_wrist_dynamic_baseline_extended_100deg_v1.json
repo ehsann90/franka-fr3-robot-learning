@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "robot_ip": "172.16.0.2",
+  "ratchet_limit_calibration": "calibration/bolt_ratchet_limits_v1.json",
+  "execution_enabled": true,
+  "reset_execution_enabled": true,
+  "required_setup": "empty Hand, no bolt, clear local path near THREAD_READY",
+  "forward_angle_rad": 1.6580627893946132,
+  "forward_angle_deg": 95.0,
+  "reverse_angle_rad": 1.6580627893946132,
+  "reverse_angle_deg": 95.0,
+  "expected_start_q": [-0.06152, 0.82522, 0.67567, -1.66098, -0.60578, 2.23223, 0.042990],
+  "start_q7_tolerance_rad": 0.03,
+  "other_joint_start_tolerance_rad": 0.05,
+  "minimum_forward_reserve_rad": 1.2,
+  "minimum_backward_reserve_rad": 0.15,
+  "relative_dynamics_factor": 0.05,
+  "joint_mechanical_margin_rad": 0.1,
+  "maximum_joint_delta_rad": 1.7,
+  "maximum_predicted_translation_m": 0.01,
+  "workspace_bounds_m": {
+    "min_xyz": [0.57, 0.31, 0.085],
+    "max_xyz": [0.61, 0.35, 0.115]
+  },
+  "stationary_baseline_duration_s": 3.0,
+  "stationary_sample_hz": 50.0,
+  "callback_capacity_per_phase": 60000,
+  "output_dir": "recordings/bolt_wrist_dynamic_baselines_extended_100deg_v1",
+  "automatic_threshold_derivation_enabled": false,
+  "basis": {
+    "purpose": "extend the measured empty-Hand q7 dynamic model for the uncommissioned 8x 85-degree window",
+    "contact": "none; bolt removed and Hand empty",
+    "franka_protections": "unchanged",
+    "execution_authorization": "read-only preview required before any physical recording"
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "note": "Evaluation constants for the pi0.5-DROID bracket pick-and-place policy (config pi05_fr3_bracket_full, trained 2026-08-18 on 50 bracket-only episodes). EVERY value below is derived from measurement of the 50 training captures or read live from the robot -- none are carried over from the cube pick-and-place eval, whose defaults are wrong for this task in several places that would silently look like policy failure.",
+  "policy": {
+    "prompt": "Place the 3D-printed bracket onto the wall alignment pins.",
+    "prompt_basis": "BRACKET_TASK_PROMPT in convert_raw_recordings_to_lerobot.py; the dataset was written with prompt_from_task=True so this exact string is what every training frame carried. Any other wording is out of distribution.",
+    "server_host": "10.6.38.133",
+    "server_port": 8000,
+    "action_shape": [
+      16,
+      8
+    ],
+    "action_semantics": "dims 0-6 = joint velocity (rad/s, trained on libfranka dq_d); dim 7 = gripper closedness (1 - width/0.08)",
+    "control_hz": 15.0,
+    "execute_steps": 8,
+    "execute_steps_basis": "pi0.5 DROID convention: predict 16, execute the first 8 open-loop (~0.53 s at 15 Hz), then replan. Matches the proven cube eval and OpenPI's documented DROID setup."
+  },
+  "gripper": {
+    "max_width_m": 0.08,
+    "max_width_basis": "measured: Hand reads 0.0799 m fully open and 0.0381 m closed on the bracket across all 50 captures",
+    "close_threshold": 0.35,
+    "release_threshold": 0.15,
+    "threshold_basis": "Re-measured 2026-08-18 over the bracket window of all 50 captures (50,288 samples). The ACTION gripper channel (1 - gripper_command_width/0.08) is open at ~0.000 (~31% of samples) and closed at 0.5215 (~29%, the achieved width once the fingers contact the 38.3 mm bracket) with a brief 0.6250 transient (5.5%) while the commanded 0.03 m close is still in flight. An earlier note here claimed the closed mode was exactly 0.6250; that is the transient, not the mode. 0.35 still separates cleanly: 0.35 below the 0.5215 closed mode and 0.35 above the open mode. The cube eval's 0.50 would sit only 0.02 below the bracket's closed mode and could miss the grasp entirely on a regression-smoothed output.",
+    "grasp_target_width_m": 0.03,
+    "grasp_speed_m_s": 0.02,
+    "grasp_force_n": 15.0,
+    "grasp_epsilon_inner_m": 0.01,
+    "grasp_epsilon_outer_m": 0.01,
+    "held_width_min_m": 0.02,
+    "held_width_max_m": 0.04,
+    "open_speed_m_s": 0.05,
+    "minimum_open_width_m": 0.038,
+    "gripper_basis": "identical to the calibrated grasp block proven live on B1-B51 in bracket_manual_replay_1x_highcap_*.json",
+    "held_observation_closedness": 0.522,
+    "held_observation_closedness_basis": "Measured 1 - gripper_width/0.08 while the bracket is held: width 0.0383 m (p5 0.0381, p95 0.0383, n=5830) -> 0.5217. This is the OBSERVATION channel and is what the streaming feeder must be given as --gripper-closedness during the held/transport phase. It is NOT the same as the action channel's 0.6250 close transient; passing 0.625 there would put the policy's proprioception out of distribution for the entire transport."
+  },
+  "motion": {
+    "joint_velocity_caps_rad_s": [
+      1.9,
+      1.9,
+      1.9,
+      1.9,
+      1.9,
+      1.9,
+      1.9
+    ],
+    "joint_velocity_caps_basis": "measured per-joint peak |dq_d| over the bracket phase of all 50 captures = [1.112, 1.081, 1.206, 1.432, 1.227, 1.644, 1.646] rad/s; overall max 1.6461. 1.9 clears that by 15% AND equals the velocity cap of fr3_retimed_joint_trajectory_bracket_highcap_v2/v3, which physically executed all 50 of these motions on this robot. The cube eval default of 0.10 would clip 24.1% of timesteps and throttle peak motion 16x -- the single largest eval-environment failure mode for this task.",
+    "relative_dynamics_factor_basis": "SUPERSEDED by training_executor_caps above; kept only as the value used before 2026-08-18 and as the reset-motion fallback. franky scales velocity AND acceleration AND jerk limits by this factor, so it must satisfy factor * joint_velocity_limit >= the caps above for every joint. The preflight reads the robot's live joint_velocity_limit and fails if this does not hold. The cube eval's 0.085 would cap motion near 0.2 rad/s and throttle this policy ~8x.",
+    "guard_displacement_scale": 2.0,
+    "joint_margin_rad": 0.12,
+    "training_executor_caps": {
+      "velocity_rad_s": 1.9,
+      "acceleration_rad_s2": 14.0,
+      "jerk_rad_s3": 260.0,
+      "basis": "The compile-time caps of fr3_retimed_joint_trajectory_bracket_highcap_v2 (1.90/10.0/260.0) and _v3 (1.90/14.0/260.0) in model-running/streaming/CMakeLists.txt -- the two binaries that physically executed all 50 bracket demonstrations. Measured peaks cited in that file: velocity 1.594663, acceleration 12.297626, jerk 229.397092 rad/s^3. The runner reads the robot's LIVE joint velocity/acceleration/jerk limits and derives per-axis relative dynamics factors that reproduce these caps, instead of a single scalar. A single scalar cannot: relative_dynamics_factor=0.9 reproduced training VELOCITY but simultaneously permitted ~0.9x the FR3's jerk limit, roughly an order of magnitude more jerk than any training motion used. That mismatch, not the policy, is what made the arm slam and shake the table."
+    },
+    "relative_dynamics_factor_fallback": 0.9,
+    "workspace_displacement_scale": 1.0,
+    "workspace_displacement_scale_basis": "The joint-limit guard extrapolates the chunk by guard_displacement_scale=2.0, which is right for joint limits (hard, unrecoverable). Applying the same 2x to the WORKSPACE box is wrong: the bracket grasp requires descending to z=0.0121-0.0283 m (measured over all 50 captures), and a 2x lookahead from a normal descent predicts a negative z long before the TCP is anywhere near the table. Trial T00_B2_aligned aborted on exactly this at chunk 6 (predicted z=-0.0024 while the TCP was still at z=0.101). The floor is still enforced twice: on the 1x-extrapolated chunk before it is issued, and on the ACTUAL TCP after every chunk.",
+    "continuous_streaming": true,
+    "continuous_lead_s": 0.03,
+    "continuous_streaming_basis": "Each chunk was issued as its own BLOCKING JointVelocityWaypointMotion, so franky ramped the arm to a stop at every chunk boundary and re-accelerated from rest 1.9 times per second -- a motion profile that appears NOWHERE in the training data, where each demo segment was one continuous retimed trajectory. Trial T00_B2_aligned measured 13.3% of wall time with no motion command active. In continuous mode the next chunk is issued asynchronously just before the current one ends, so the arm never returns to rest mid-reach, and the observation is still captured only ~1 inference-time before the chunk it drives."
+  },
+  "workspace_guard": {
+    "min_xyz": [
+      0.18,
+      -0.53,
+      0.005
+    ],
+    "max_xyz": [
+      0.77,
+      0.44,
+      0.34
+    ],
+    "basis": "TCP envelope over the entire bracket phase across all 50 captures was x[0.2337,0.7202] y[-0.4815,0.3910] z[0.0121,0.2831]; bounds add ~50 mm margin. min_z is a hard floor of 0.005 -- 7.1 mm below the deepest TCP point of 50 successful demonstrations, and never negative, so it cannot permit driving the TCP into the table. It was briefly raised to 0.008 on 2026-08-18 and that was a mistake: the STREAMER adds its own guard_margin[z]=0.002 and braking_buffer=0.002 on top of min-z, so 0.008 put the effective floor at 0.012 -- level with the 0.0121 training grasp minimum. Trial B2_ck7999_approach_2 stopped on predicted_guard at z=0.012104, 0.1 mm of headroom, with the policy correctly at grasp height.",
+    "streamer_floor_note": "The streamer's effective floor is min-z + guard_margin[z] + braking_buffer + a speed-dependent braking distance, so the value passed to --min-z must be pre-compensated. print_bracket_streaming_commands.py does that subtraction; do not pass min_xyz[2] to the streamer directly."
+  },
+  "start_pose": {
+    "q": [
+      -0.899478,
+      0.331117,
+      0.827674,
+      -2.138231,
+      -0.299055,
+      2.232893,
+      0.948728
+    ],
+    "source_episode": "20260817_170723_full_bracket_bolt_autonomous_0028_B27_S1_CENTER",
+    "basis": "There is NO single training start pose: starts vary by up to 1.05 rad (J1) and 140 mm TCP because each capture began at its own bracket position's piloted approach start. This q is the MEDOID -- the real recorded start closest to the median of all 50 (0.082 rad away) -- so it is a genuinely reachable, in-distribution pose rather than a synthetic average. Holding it fixed across trials also removes start pose as a confounding variable. Justified because the start pose only weakly predicts the dominant bracket-position axis (start.y vs grasp.y r=+0.20), so the policy cannot shortcut via proprioception and must localise the bracket visually."
+  },
+  "task_geometry": {
+    "pick_location_spread_m": {
+      "x": 0.2336,
+      "y": 0.8589,
+      "z": 0.0111
+    },
+    "place_location_spread_m": {
+      "x": 0.0154,
+      "y": 0.0032,
+      "z": 0.0123
+    },
+    "basis": "measured at the bracket_grasped and bracket_mounted_released action timestamps. The pick varies enormously (859 mm in y) and the mount point is effectively fixed, so this is a vary-the-pick / fixed-the-place task. Eval must therefore vary the BRACKET position, not the mount."
+  },
+  "cameras": {
+    "exterior_serial": "336222074819",
+    "wrist_serial": "243322074869",
+    "width": 640,
+    "height": 480,
+    "fps": 60,
+    "basis": "same serials and 640x480 capture as every training recording; camera_0=exterior, camera_1=wrist, matching camera_sources in the converter"
+  },
+  "streaming": {
+    "streamer_binary": "model-running/streaming/build/fr3_joint_velocity_streamer",
+    "command_port": 51000,
+    "state_port": 51001,
+    "streamer_cpu": "2",
+    "feeder_cpus": "4-15",
+    "velocity_caps_rad_s": [
+      1.9,
+      1.9,
+      1.9,
+      1.9,
+      1.9,
+      1.9,
+      1.9
+    ],
+    "acceleration_caps_rad_s2": [
+      13.5,
+      6.75,
+      9.0,
+      11.25,
+      13.5,
+      14.0,
+      14.0
+    ],
+    "jerk_caps_rad_s3": [
+      260.0,
+      260.0,
+      260.0,
+      260.0,
+      260.0,
+      260.0,
+      260.0
+    ],
+    "execute_steps": 16,
+    "basis": "fr3_joint_velocity_streamer.cpp holds a persistent 1 kHz libfranka control loop, interpolates the 16-step plan by its age, and swaps in each new plan at the action index implied by inference latency. The arm is therefore never ramped to rest between chunks, which the franky-based chunked runner could not avoid. Caps are the compile-time caps of the trajectory binaries that executed all 50 bracket demonstrations (1.90 rad/s, 14.0 rad/s^2, 260.0 rad/s^3); the streamer's own defaults (0.10/0.75/30.0) are the CUBE task's values and would throttle this policy ~16x. execute_steps is the streamer default of 16 rather than 8: with continuous plan replacement there is no reason to truncate the horizon, and the streamer already discards actions made stale by inference latency.",
+    "caps_basis": "Per-joint, NOT uniform. Corrected 2026-08-18 after the transport phase of B2_stream_01 died on libfranka's joint_motion_generator_velocity_discontinuity reflex. The caps had been set to the trajectory binaries' uniform compile-time values (1.90/14.0/260.0), but this FR3's live per-joint ACCELERATION limits are [15, 7.5, 10, 12.5, 15, 20, 20] rad/s^2 -- so a uniform 14.0 asked joint 2 for 187% of its limit, joint 3 for 140% and joint 4 for 112%. The streamer's custom_velocity_tracker saturates requested acceleration at the cap (velocity_tracking_gain=20), so libfranka saw a commanded velocity step exceeding the joint's acceleration limit and reflexed. Each cap is now min(training cap, 0.9 x live limit). The approach phase survived the uniform caps only because its peak was 0.937 rad/s and never demanded that much acceleration on joint 2; transport peaked at 1.247 rad/s and did. This same uniform-14.0 cap is the likely cause of the four velocity-discontinuity reflexes seen during demo recording, which never fit a proximity-to-velocity-cap explanation.",
+    "guard_margin_z_m": 0.002,
+    "braking_buffer_m": 0.002
+  }
+}

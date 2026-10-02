@@ -11,7 +11,19 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from repo_paths import EVAL_LOGS_DIR
+from repo_paths import EVAL_LOGS_DIR, FR3_ROOT
+
+
+def resolved_path(value: str | Path) -> Path:
+    """Return a canonical manifest path across supported launch directories."""
+    path = Path(value)
+    if path.is_absolute():
+        return path.resolve()
+    for base in (Path.cwd(), Path(__file__).resolve().parent, FR3_ROOT, FR3_ROOT.parent):
+        candidate = base / path
+        if candidate.exists():
+            return candidate.resolve()
+    return (Path.cwd() / path).resolve()
 
 
 def main() -> None:
@@ -29,7 +41,11 @@ def main() -> None:
     parser.add_argument("--checkpoint", default="7999")
     parser.add_argument("--notes", default="")
     parser.add_argument("--results", type=Path, default=EVAL_LOGS_DIR / "fr3_policy_eval_results.jsonl")
-    parser.add_argument("--replace", action="store_true", help="Replace an existing result for this checkpoint and trial.")
+    parser.add_argument(
+        "--replace",
+        action="store_true",
+        help="Replace an existing result for this manifest, checkpoint, and trial.",
+    )
     args = parser.parse_args()
 
     manifest = json.loads(args.manifest.read_text())
@@ -48,9 +64,10 @@ def main() -> None:
     existing = []
     if args.results.exists():
         existing = [json.loads(line) for line in args.results.read_text().splitlines() if line]
+    manifest_path = resolved_path(args.manifest)
     duplicate = [
         row for row in existing
-        if row.get("manifest") == str(args.manifest)
+        if row.get("manifest") and resolved_path(row["manifest"]) == manifest_path
         and row.get("eval_id") == args.eval_id
         and row.get("trial") == args.trial
         and row.get("checkpoint") == args.checkpoint

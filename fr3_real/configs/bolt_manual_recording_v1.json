@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "task_name": "bolt",
+  "language_prompt": "insert the 3d printed bolt into the bracket hole and fasten it",
+  "robot_ip": "172.16.0.2",
+  "output_dir": "recordings/bolt_manual_raw_v1",
+  "camera": {
+    "width": 640,
+    "height": 480,
+    "source_fps": 30,
+    "serials_in_dataset_order": [
+      {
+        "role": "exterior",
+        "serial": "336222074819"
+      },
+      {
+        "role": "wrist",
+        "serial": "243322074869"
+      }
+    ]
+  },
+  "robot_state_sample_hz": 30.0,
+  "dataset": {
+    "target_fps": 15,
+    "schema": "droid_joint_position",
+    "action_dimension": 8,
+    "action_semantics": "absolute achieved-next q[7] at the next dataset timestamp plus operator-marked achieved-next gripper closedness",
+    "joint_order": [0, 1, 2, 3, 4, 5, 6],
+    "gripper_observation": "piecewise-constant operator-marked closedness = clip(1 - width/0.08, 0, 1); raw metadata identifies this as reconstructed, not measured",
+    "openpi_requirement": "LeRobotDROIDDataConfig(joint_position_actions=True)"
+  },
+  "allowed_screw_slots": ["S1"],
+  "allowed_grasp_styles": ["CENTER"],
+  "maximum_manual_ratchet_cycles": 12,
+  "manual_gripper_states_m": {
+    "open": 0.0799,
+    "pickup_closed": 0.00075,
+    "thread_ready_head_closed": 0.015746
+  },
+  "manual_gripper_state_source": "operator_marked_discrete_state",
+  "bc_training_eligible_default": false,
+  "intended_use": "successful source trajectory for guarded no-operator replay commissioning",
+  "threading_config": "configs/bolt_threading_v1.json",
+  "head_width_calibration": "calibration/bolt_thread_ready_head_width_v1.json"
+}

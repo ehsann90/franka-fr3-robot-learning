@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "robot_ip": "172.16.0.2",
+  "task_name": "bolt",
+  "language_prompt": "insert the 3d printed bolt into the bracket hole and fasten it",
+  "screw_axis_frame": "K",
+  "screw_axis_direction": [0.0, 0.0, 1.0],
+  "axial_force_signal": "K_F_ext_hat_K[2]",
+    "axial_torque_signal": "K_F_ext_hat_K[5]",
+    "thread_geometry_calibration": "calibration/bolt_thread_geometry_v1.json",
+    "wrist_dynamic_model_calibration": "calibration/bolt_wrist_dynamic_model_v1.json",
+  "contact_search_calibration": "configs/bolt_contact_v1.json",
+  "manual_engagement_capture": {
+    "enabled": true,
+    "robot_sample_hz": 50.0,
+    "gripper_connection_enabled": false,
+    "output_dir": "recordings/piloted_bolt_thread_engagement_v1",
+        "endpoint": "first_unambiguous_engagement_after_one_or_more_manual_ratchet_cycles",
+        "maximum_manual_ratchet_cycles": 12,
+        "wrist_prewind_required": true,
+        "wrist_prewind_method": "release_supported_bolt_rotate_empty_wrist_opposite_tightening_then_regrasp",
+        "wrist_prewind_nominal_angle_deg": 180.0,
+        "wrist_prewind_angle_is_operator_limited_by_known_cable_and_joint_limits": true,
+        "automatic_motion_enabled": false,
+        "automatic_rotation_enabled": false,
+        "manual_ratchet_sequence": "tighten_safe_window_release_supported_bolt_rewind_empty_wrist_regrasp_repeat"
+  },
+  "automatic_thread_engagement": {
+    "enabled": false,
+    "tightening_rotation_sign_Kz": "NOT_CALIBRATED",
+    "axial_force_target": 1.20036,
+    "axial_force_target_status": "PROVISIONAL_OPERATOR_APPROVED_NOT_PHYSICALLY_COMMISSIONED",
+    "axial_force_target_approval_date": "2026-08-12",
+    "axial_force_hard_limit": 2.0,
+    "axial_force_hard_limit_status": "PROVISIONAL_OPERATOR_APPROVED_AND_PREVIOUSLY_USED_BY_CONTACT_SEARCH",
+    "axial_preload_commissioning_config": "configs/bolt_axial_preload_v1.json",
+    "axial_preload_controller_status": "FRANKY_1_1_4_LIBFRANKA_0_18_PATH_REJECTED_ZERO_JACOBIAN_DIRECT_LIBFRANKA_0_21_2_DIAGNOSTIC_PASSED",
+    "axial_preload_required_next_implementation": "direct libfranka 0.21.2 bounded ramped measured-force feedback in the low-level real-time layer; execution blocked until controller gains are explicitly calibrated",
+    "rotational_resistance_engage_max": "NOT_CALIBRATED",
+    "maximum_engagement_rotation": "NOT_CALIBRATED",
+    "minimum_expected_axial_progress": "NOT_CALIBRATED",
+    "state_timeout": "NOT_CALIBRATED"
+  },
+  "drive_ratchet_jam_seated": {
+    "enabled": false,
+    "all_parameters": "NOT_CALIBRATED"
+  }
+}

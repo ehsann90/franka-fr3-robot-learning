@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FR3 research progress report for Huyue and Dr Mei</title>
+<style>
+@page { size: A4; margin: 24mm 25mm; }
+body { font-family: "Times New Roman", "Liberation Serif", serif; font-size: 12pt; line-height: 1.5; color: #111; }
+h1 { font-family: inherit; font-size: 12pt; font-weight: bold; margin: 0 0 16pt; }
+h2 { font-family: inherit; font-size: 12pt; font-weight: bold; margin: 13pt 0 3pt; }
+p { margin: 0 0 8pt; }
+</style>
+</head>
+<body>
+<h1>FR3 research progress report for Huyue and Dr Mei</h1>
+
+<h2>May and June 2026:</h2>
+<p>I began by learning robot simulation in Isaac Sim and Isaac Lab and MuJoCo. This gave me a foundation in robot motion and control before working with physical hardware.</p>
+
+<h2>July 2026:</h2>
+<p>I moved to the Franka Research 3 robot and built a cube pick and place task. The robot picks a cube from different table cells and places it into a basket. I calibrated the work area and two cameras. I recorded demonstrations and converted the successful episodes into a LeRobot dataset. I then fine tuned pi0.5 DROID and built guarded evaluation tools to test the policy on the real robot.</p>
+
+<h2>Current code and data pipeline:</h2>
+<p>The code records synchronized exterior and wrist camera video. It also records joint state and Hand state with timestamps and task events. Cell planning code selects and tracks pickup positions. The dataset converter checks the raw episodes and creates task specific training views at 15 Hz. These event boundaries let us keep bracket placement separate from bolt placement and threading.</p>
+<p>For physical execution the code has guarded arm and Hand routines. It checks the start pose and work area before a replay. It records controller results and stops when a configured limit is reached. The bracket cell loop prepares a path for each table position. It checks the measured wall keep out before using that path. The wall to cell transfer sets up the next trial without making it a training episode. The cell to wall placement is the recorded task.</p>
+
+<h2>Full fine tuning of pi0.5 DROID:</h2>
+<p>The earlier cube and bracket policy work used demonstration data with seven joint velocity actions and one gripper value. The bracket policy training pipeline starts from a pretrained pi0.5 DROID checkpoint. It uses full parameter fine tuning rather than LoRA. This updates the whole model for the new task. The current bracket and bolt recorder also supports a different dataset format based on the next achieved joint positions. That format needs a matching training configuration and careful validation before a new policy is trained. I will not treat a successful replay as proof that a learned policy can do the task.</p>
+
+<h2>Bracket and bolt assembly:</h2>
+<p>The next task is more complex than moving a cube. The bracket begins at varied table cells and must seat on fixed wall pins. The bolt begins at a fixed pickup point and must enter the mounted bracket. Thread engagement needs light downward force and controlled wrist rotation. I built separate recording and replay stages for these steps. A guarded contact controller applies the light axial load during tightening and checks force and motion limits. Physical review is still required to confirm that the bolt actually engaged.</p>
+
+<h2>Next experiments:</h2>
+<p>I will collect and review more bracket placements at checked cells. I will build separate training views for bracket placement and bolt placement. I also want to compare two approaches. One approach trains the policy on the complete motion. The other asks the policy to reach a ready state and then lets the guarded controller perform threading. Both approaches need held out positions and repeat trials. The earlier cube task should also receive stronger repeat testing and clearer failure analysis.</p>
+
+<h2>Research paper:</h2>
+<p>I have started a paper draft about the real robot learning pipeline and its cube evaluation. Huyue please ask Dr Mei whether this work could become a publishable research paper with a stronger study. I would like guidance on the research question and on the tests needed for credible claims about both the cube task and the bracket and bolt task.</p>
+</body>
+</html>

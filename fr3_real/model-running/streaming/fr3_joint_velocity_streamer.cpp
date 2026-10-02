@@ -54,6 +54,7 @@ enum class StopReason : uint32_t {
   kWatchdog = 5,
   kPredictedGuard = 6,
   kStalePlan = 7,
+  kControllerFault = 8,
 };
 
 const char* stop_reason_name(StopReason reason) {
@@ -66,6 +67,7 @@ const char* stop_reason_name(StopReason reason) {
     case StopReason::kWatchdog: return "watchdog";
     case StopReason::kPredictedGuard: return "predicted_guard";
     case StopReason::kStalePlan: return "stale_plan";
+    case StopReason::kControllerFault: return "controller_fault";
   }
   return "unknown";
 }
@@ -1036,9 +1038,14 @@ int main(int argc, char** argv) {
     std::array<double, 3> filtered_tcp_velocity{};
     bool have_previous_tcp = false;
     bool command_state_initialized = false;
+    franka::RobotState last_state{};
+    bool have_last_state = false;
 
+    try {
     while (true) {
       auto [state, period] = active->readOnce();
+      last_state = state;
+      have_last_state = true;
       const double dt = std::max(0.0005, std::min(0.0020, period.toSec()));
       const auto now = std::chrono::steady_clock::now();
       if (!command_state_initialized) {
@@ -1268,6 +1275,21 @@ int main(int argc, char** argv) {
         break;
       }
       active->writeOnce(franka::JointVelocities(commanded));
+    }
+    } catch (const franka::Exception&) {
+      // A libfranka reflex throws straight out of the control loop, killing the
+      // state-publisher thread with it. Without this the feeder sees the 60 Hz
+      // state stream simply stop and can only report an opaque
+      // "no state acknowledgement" timeout -- which is what happened on
+      // 2026-08-19 for a cartesian_reflex caused by the policy pressing the
+      // gripper into the table. Publish the reason first, give the publisher a
+      // few periods to actually send it, then let the exception propagate.
+      if (have_last_state) {
+        store_state_output(&state_output, last_state, active_sequence, plan_step, plan_steps,
+                           activation_offset, StopReason::kControllerFault);
+        std::this_thread::sleep_for(state_period * 4);
+      }
+      throw;
     }
     logger_done.store(true, std::memory_order_release);
     if (logger.joinable()) logger.join();

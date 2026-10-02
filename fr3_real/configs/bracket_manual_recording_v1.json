@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "task_name": "bracket",
+  "language_prompt": "place the 3d printed bracket onto the wall alignment pins",
+  "robot_ip": "172.16.0.2",
+  "output_dir": "recordings/bracket_manual_raw_v1",
+  "camera": {
+    "width": 640,
+    "height": 480,
+    "source_fps": 30,
+    "serials_in_dataset_order": [
+      {
+        "role": "exterior",
+        "serial": "336222074819"
+      },
+      {
+        "role": "wrist",
+        "serial": "243322074869"
+      }
+    ]
+  },
+  "robot_state_sample_hz": 30.0,
+  "dataset": {
+    "target_fps": 15,
+    "schema": "droid_joint_position",
+    "action_dimension": 8,
+    "action_semantics": "absolute achieved-next q[7] at the next dataset timestamp plus operator-marked achieved-next gripper closedness",
+    "joint_order": [0, 1, 2, 3, 4, 5, 6],
+    "gripper_observation": "piecewise-constant operator-marked closedness = clip(1 - width/0.08, 0, 1); raw metadata identifies this as reconstructed, not measured",
+    "openpi_requirement": "LeRobotDROIDDataConfig(joint_position_actions=True)"
+  },
+  "allowed_bracket_slots": ["B1", "B2"],
+  "allowed_grasp_styles": ["HIGH", "CENTER", "LOW"],
+  "manual_gripper_states_m": {
+    "open": 0.0799,
+    "bracket_center_closed": 0.0390
+  },
+  "manual_gripper_state_source": "operator_marked_discrete_state",
+  "calibration_file": "calibration/bracket_expert_v1.json"
+}

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "task": "bracket",
+  "language_prompt": "place the 3d printed bracket onto the wall alignment pins",
+  "robot_ip": "172.16.0.2",
+  "calibration_file": "calibration/bracket_expert_v1.json",
+  "execution_enabled": false,
+  "robot_start_pose": null,
+  "grasp_styles": {
+    "HIGH": {"enabled": true},
+    "CENTER": {"enabled": true},
+    "LOW": {"enabled": true}
+  },
+  "slots": {
+    "B1": {"enabled": true, "offset_xyz_m": [0.0, 0.0, 0.0]},
+    "B2": {"enabled": false, "offset_xyz_m": null},
+    "B3": {"enabled": false, "offset_xyz_m": null},
+    "B4": {"enabled": false, "offset_xyz_m": null},
+    "B5": {"enabled": false, "offset_xyz_m": null},
+    "B6": {"enabled": false, "offset_xyz_m": null}
+  },
+  "randomization": {
+    "continuous_jitter_enabled": false
+  },
+  "motion": {
+    "dynamics_factor": "NOT_CALIBRATED",
+    "max_cartesian_travel_per_state_m": "NOT_CALIBRATED",
+    "state_timeout_s": "NOT_CALIBRATED",
+    "grasp_width_m": "NOT_CALIBRATED",
+    "grasp_speed_m_s": "NOT_CALIBRATED",
+    "grasp_force_n": "NOT_CALIBRATED",
+    "open_speed_m_s": "NOT_CALIBRATED"
+  },
+  "safety": {
+    "workspace_bounds_m": "NOT_CALIBRATED"
+  }
+}

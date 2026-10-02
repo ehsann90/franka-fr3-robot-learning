@@ -16,6 +16,7 @@ import json
 import os
 import shutil
 from pathlib import Path
+from typing import NamedTuple
 
 import cv2
 import numpy as np
@@ -32,6 +33,22 @@ FR3_FULL_ACTION_NAMES = ["target.ee.x", "target.ee.y", "target.ee.z", "target.ee
 DROID_JOINT_STATE_NAMES = [f"joint_{i}.pos" for i in range(7)]
 DROID_GRIPPER_STATE_NAMES = ["gripper.closedness"]
 DROID_ACTION_NAMES = [f"joint_{i}.velocity" for i in range(7)] + ["gripper.closedness"]
+DROID_JOINT_POSITION_ACTION_NAMES = [f"joint_{i}.position" for i in range(7)] + ["gripper.closedness"]
+
+BRACKET_TASK_PROMPT = "Place the 3D-printed bracket onto the wall alignment pins."
+FULL_BOLT_TASK_PROMPT = (
+    "Pick up the 3D-printed bolt, insert it into the mounted bracket, and engage the threads."
+)
+HYBRID_BOLT_TASK_PROMPT = (
+    "Pick up the 3D-printed bolt, insert it into the mounted bracket, and securely grasp its head for threading."
+)
+
+
+class EpisodeView(NamedTuple):
+    name: str
+    task: str
+    start_time_ns: int | None = None
+    end_time_ns: int | None = None
 
 
 def read_jsonl(path: Path) -> list[dict]:
@@ -46,16 +63,103 @@ def read_jsonl(path: Path) -> list[dict]:
     return rows
 
 
-def episode_dirs(raw_dir: Path, include_failed: bool) -> list[Path]:
+def episode_dirs(
+    raw_dir: Path, include_failed: bool, include_source_trajectories: bool = False
+) -> list[Path]:
     dirs = []
     for path in sorted(raw_dir.iterdir()):
         metadata_path = path / "metadata.json"
         if not path.is_dir() or not metadata_path.exists():
             continue
         metadata = json.loads(metadata_path.read_text())
+        source_only = metadata.get("bc_training_eligible") is False
+        if source_only and not include_source_trajectories:
+            continue
         if metadata.get("success", False) or include_failed:
             dirs.append(path)
     return dirs
+
+
+def _unique_event_time(events: list[dict], name: str, ep_dir: Path) -> int:
+    matches = [int(row["time_ns"]) for row in events if row.get("event") == name]
+    if len(matches) != 1:
+        raise RuntimeError(
+            f"{ep_dir}: expected exactly one {name!r} event, found {len(matches)}"
+        )
+    return matches[0]
+
+
+def _training_motion_end(ep_dir: Path, events: list[dict]) -> int:
+    """Return the pre-review endpoint, including one second of terminal context."""
+
+    explicit = [
+        int(row["time_ns"])
+        for row in events
+        if row.get("event") == "training_motion_completed"
+    ]
+    if len(explicit) == 1:
+        return explicit[0]
+    if len(explicit) > 1:
+        raise RuntimeError(
+            f"{ep_dir}: expected at most one 'training_motion_completed' event"
+        )
+
+    # Episode 9 predates the explicit boundary by one collection run. Its raw
+    # achieved release action is authoritative; retain the same one-second
+    # terminal context without altering any source file.
+    actions = read_jsonl(ep_dir / "actions.jsonl")
+    releases = [
+        int(row["time_ns"])
+        for row in actions
+        if row.get("action") == "engaged_bolt_released"
+    ]
+    if len(releases) != 1:
+        raise RuntimeError(
+            f"{ep_dir}: no unique terminal training boundary or engaged-bolt release"
+        )
+    return releases[0] + 1_000_000_000
+
+
+def derived_episode_views(
+    ep_dir: Path,
+    metadata: dict,
+    view: str,
+    default_task: str,
+) -> list[EpisodeView]:
+    """Return immutable time views of one accepted synchronized raw capture."""
+
+    if view == "whole":
+        return [EpisodeView("whole", default_task)]
+    if metadata.get("setup_validation_only") is True:
+        raise RuntimeError(f"{ep_dir}: setup-validation captures cannot produce training views")
+    if metadata.get("bc_training_eligible") is not True or metadata.get("success") is not True:
+        raise RuntimeError(f"{ep_dir}: derived training views require accepted successful raw data")
+    if metadata.get("task_name") != "full_bracket_bolt_assembly":
+        raise RuntimeError(f"{ep_dir}: {view} requires a full-assembly raw capture")
+
+    events = read_jsonl(ep_dir / "events.jsonl")
+    bracket_end = _unique_event_time(events, "bracket_retreat_open_completed", ep_dir)
+    review_end = _unique_event_time(events, "autonomous_bolt_episode_finished", ep_dir)
+    bolt_end = _training_motion_end(ep_dir, events)
+    record_start = int(metadata["record_start_time_ns"])
+    if not record_start < bracket_end < bolt_end <= review_end:
+        raise RuntimeError(f"{ep_dir}: full-policy task boundaries are not time ordered")
+
+    views = [
+        EpisodeView("bracket", BRACKET_TASK_PROMPT, record_start, bracket_end),
+    ]
+    if view == "two_task_full_policy":
+        views.append(EpisodeView("bolt_full", FULL_BOLT_TASK_PROMPT, bracket_end, bolt_end))
+        return views
+    if view == "two_task_hybrid":
+        thread_ready = _unique_event_time(events, "thread_ready_completed", ep_dir)
+        if not bracket_end < thread_ready < bolt_end:
+            raise RuntimeError(f"{ep_dir}: hybrid THREAD_READY boundary is not time ordered")
+        views.append(
+            EpisodeView("bolt_thread_ready", HYBRID_BOLT_TASK_PROMPT, bracket_end, thread_ready)
+        )
+        return views
+    raise ValueError(f"unknown derived view: {view}")
 
 
 def camera_files(ep_dir: Path) -> list[Path]:
@@ -160,6 +264,23 @@ def droid_joint_velocity_action_vector(sample: dict, next_sample: dict, gripper_
     )
 
 
+def droid_joint_position_action_vector(next_sample: dict, gripper_max_width: float) -> np.ndarray:
+    """Absolute achieved-next joint pose and measured achieved-next gripper state.
+
+    Manual Pilot demonstrations do not expose an arm or Franka Hand command.
+    The target therefore comes from the robot state synchronized to the next
+    dataset frame. This is the same achieved-next joint-position convention as
+    the repository's existing pi0.5 joint-position LeRobot datasets. The raw
+    recording remains authoritative and records that no gripper command was
+    available.
+    """
+
+    return np.asarray(
+        list(next_sample["q"]) + [gripper_closedness(next_sample, gripper_max_width)],
+        dtype=np.float32,
+    )
+
+
 def nearest_indices(sorted_times: np.ndarray, query_times: np.ndarray) -> np.ndarray:
     idx = np.searchsorted(sorted_times, query_times)
     idx = np.clip(idx, 1, len(sorted_times) - 1)
@@ -182,19 +303,21 @@ def build_features(
     if not video_paths:
         raise RuntimeError(f"No camera videos found in {first_ep}")
 
-    if schema == "droid_joint_velocity":
+    if schema in {"droid_joint_velocity", "droid_joint_position"}:
         state_names = DROID_JOINT_STATE_NAMES
-        action_names = DROID_ACTION_NAMES
+        action_names = (
+            DROID_ACTION_NAMES if schema == "droid_joint_velocity" else DROID_JOINT_POSITION_ACTION_NAMES
+        )
     else:
         state_names = FR3_FULL_STATE_NAMES
         action_names = FR3_FULL_ACTION_NAMES
 
-    if schema == "droid_joint_velocity":
+    if schema in {"droid_joint_velocity", "droid_joint_position"}:
         # These exact names are consumed by OpenPI's LeRobotDROIDDataConfig.
         features = {
             "joint_position": {"dtype": "float32", "shape": (7,), "names": DROID_JOINT_STATE_NAMES},
             "gripper_position": {"dtype": "float32", "shape": (1,), "names": DROID_GRIPPER_STATE_NAMES},
-            "actions": {"dtype": "float32", "shape": (8,), "names": DROID_ACTION_NAMES},
+            "actions": {"dtype": "float32", "shape": (8,), "names": action_names},
         }
         required_cameras = ["exterior_image_1_left", "exterior_image_2_left", "wrist_image_left"]
     else:
@@ -205,7 +328,7 @@ def build_features(
         required_cameras = []
 
     camera_sources: list[tuple[str, int]] = []
-    if schema != "droid_joint_velocity":
+    if schema not in {"droid_joint_velocity", "droid_joint_position"}:
         for video_path in video_paths:
             cap = cv2.VideoCapture(str(video_path))
             ok, frame = cap.read()
@@ -222,7 +345,7 @@ def build_features(
                 "shape": (height, width, 3),
                 "names": ["height", "width", "channel"],
             }
-    if schema == "droid_joint_velocity":
+    if schema in {"droid_joint_velocity", "droid_joint_position"}:
         if len(video_paths) < 2:
             raise RuntimeError("pi05_droid conversion requires the two RealSense camera videos.")
         # OpenPI's DROID adapter requires three image keys. The second FR3 view
@@ -260,6 +383,9 @@ def convert_episode(
     gripper_max_width: float,
     image_width: int | None,
     image_height: int | None,
+    output_fps: int,
+    start_time_ns: int | None = None,
+    end_time_ns: int | None = None,
 ) -> int:
     states = read_jsonl(ep_dir / "robot_state.jsonl")
     if len(states) < 2:
@@ -267,7 +393,7 @@ def convert_episode(
     state_times = np.asarray([row["time_ns"] for row in states], dtype=np.int64)
 
     video_paths = camera_files(ep_dir)
-    if schema != "droid_joint_velocity" and len(video_paths) != len(camera_sources):
+    if schema not in {"droid_joint_velocity", "droid_joint_position"} and len(video_paths) != len(camera_sources):
         raise RuntimeError(f"{ep_dir} camera count changed: expected {len(camera_sources)}, got {len(video_paths)}")
 
     timestamp_rows = []
@@ -279,14 +405,28 @@ def convert_episode(
         timestamp_rows.append(rows)
 
     source_fps = int(json.loads((ep_dir / "metadata.json").read_text()).get("fps", 60))
-    frame_stride = max(1, round(source_fps / 15)) if schema == "droid_joint_velocity" else 1
+    frame_stride = (
+        max(1, round(source_fps / output_fps))
+        if schema in {"droid_joint_velocity", "droid_joint_position"}
+        else 1
+    )
     frame_count = min(len(rows) for rows in timestamp_rows)
-    if max_frames is not None:
-        frame_count = min(frame_count, max_frames)
     if frame_count < 2:
         raise RuntimeError(f"{ep_dir} has too few synchronized frames")
 
     selected_frame_indices = list(range(0, frame_count, frame_stride))
+    if start_time_ns is not None:
+        selected_frame_indices = [
+            idx
+            for idx in selected_frame_indices
+            if int(timestamp_rows[0][idx]["time_ns"]) >= start_time_ns
+        ]
+    if end_time_ns is not None:
+        selected_frame_indices = [
+            idx
+            for idx in selected_frame_indices
+            if int(timestamp_rows[0][idx]["time_ns"]) <= end_time_ns
+        ]
     if max_frames is not None:
         selected_frame_indices = selected_frame_indices[:max_frames]
     if len(selected_frame_indices) < 2:
@@ -294,10 +434,16 @@ def convert_episode(
     ref_times = np.asarray([timestamp_rows[0][idx]["time_ns"] for idx in selected_frame_indices], dtype=np.int64)
     state_indices = nearest_indices(state_times, ref_times)
 
+    # Joint-position labels require the state synchronized to the following
+    # selected camera frame. Do not emit a terminal self-target frame.
+    saved_frame_indices = (
+        selected_frame_indices[:-1] if schema == "droid_joint_position" else selected_frame_indices
+    )
+
     caps = [cv2.VideoCapture(str(path)) for path in video_paths]
     try:
         saved_frames = 0
-        selected_set = set(selected_frame_indices)
+        selected_set = set(saved_frame_indices)
         for frame_idx in range(frame_count):
             images = [read_video_frame(cap) for cap in caps]
             if any(image is None for image in images):
@@ -314,6 +460,18 @@ def convert_episode(
                     "joint_position": droid_joint_state_vector(states[state_idx]),
                     "gripper_position": np.asarray([gripper_closedness(states[state_idx], gripper_max_width)], dtype=np.float32),
                     "actions": droid_joint_velocity_action_vector(states[state_idx], states[action_idx], gripper_max_width),
+                }
+            elif schema == "droid_joint_position":
+                next_state_idx = int(state_indices[saved_frames + 1])
+                frame = {
+                    "task": task,
+                    "joint_position": droid_joint_state_vector(states[state_idx]),
+                    "gripper_position": np.asarray(
+                        [gripper_closedness(states[state_idx], gripper_max_width)], dtype=np.float32
+                    ),
+                    "actions": droid_joint_position_action_vector(
+                        states[next_state_idx], gripper_max_width
+                    ),
                 }
             else:
                 state = fr3_full_state_vector(states[state_idx])
@@ -341,11 +499,34 @@ def main() -> None:
     parser.add_argument("--output_dir", type=Path, required=True)
     parser.add_argument("--repo_id", type=str, required=True, help="LeRobot repo id, e.g. msbutt1/fr3-pick-place")
     parser.add_argument("--task", type=str, default="Pick up the blue cube and place it in the basket.")
+    parser.add_argument(
+        "--derived_view",
+        choices=["whole", "two_task_full_policy", "two_task_hybrid"],
+        default="whole",
+        help=(
+            "Derive immutable task episodes from each accepted full-assembly raw capture. "
+            "The full-policy view contains bracket + complete bolt/threading episodes; "
+            "the hybrid view replaces complete threading with a bolt-to-THREAD_READY episode."
+        ),
+    )
     parser.add_argument("--fps", type=int, default=15, help="Output dataset FPS. pi05_droid expects 15 Hz.")
     parser.add_argument("--include_failed", action="store_true")
+    parser.add_argument(
+        "--include_source_trajectories",
+        action="store_true",
+        help="Include successful Pilot source trajectories explicitly marked bc_training_eligible=false.",
+    )
     parser.add_argument("--max_frames_per_episode", type=int, default=None)
-    parser.add_argument("--schema", choices=["droid_joint_velocity", "fr3_full"], default="droid_joint_velocity",
-                        help="droid_joint_velocity matches OpenPI pi05_droid; fr3_full is diagnostic only.")
+    parser.add_argument(
+        "--schema",
+        choices=["droid_joint_velocity", "droid_joint_position", "fr3_full"],
+        default="droid_joint_velocity",
+        help=(
+            "droid_joint_position stores achieved-next absolute joint targets for "
+            "LeRobotDROIDDataConfig(joint_position_actions=True); droid_joint_velocity "
+            "preserves the existing velocity pipeline; fr3_full is diagnostic only."
+        ),
+    )
     parser.add_argument("--gripper_max_width", type=float, default=0.08,
                         help="Meters, used to normalize gripper closedness for DROID-style schema.")
     parser.add_argument("--image_width", type=int, default=320,
@@ -354,6 +535,8 @@ def main() -> None:
                         help="Converted image height. OpenPI performs the final model resize.")
     parser.add_argument("--overwrite", action="store_true")
     args = parser.parse_args()
+    if args.fps <= 0:
+        raise SystemExit("--fps must be positive")
 
     # OpenPI's pinned legacy LeRobot resolves this at import time. Treat
     # --output_dir as the cache root, exactly as the existing VM converters do.
@@ -378,7 +561,9 @@ def main() -> None:
             f"Could not import LeRobot: {exc}"
         ) from exc
 
-    episodes = episode_dirs(args.raw_dir, args.include_failed)
+    episodes = episode_dirs(
+        args.raw_dir, args.include_failed, args.include_source_trajectories
+    )
     if not episodes:
         raise SystemExit(f"No usable episodes found under {args.raw_dir}")
     create_parameters = inspect.signature(LeRobotDataset.create).parameters
@@ -397,7 +582,11 @@ def main() -> None:
         "fps": args.fps,
         # DROID/OpenPI uses Panda kinematic conventions. FR3 shares the
         # relevant seven-joint Franka arm interface for this data adapter.
-        "robot_type": "panda" if args.schema == "droid_joint_velocity" else "franka_fr3",
+        "robot_type": (
+            "panda"
+            if args.schema in {"droid_joint_velocity", "droid_joint_position"}
+            else "franka_fr3"
+        ),
         "features": features,
     }
     if legacy_root is not None:
@@ -417,20 +606,31 @@ def main() -> None:
 
     converted = 0
     for ep_dir in episodes:
-        print(f"[convert] {ep_dir.name}")
-        n_frames = convert_episode(
-            dataset,
+        metadata = json.loads((ep_dir / "metadata.json").read_text())
+        views = derived_episode_views(
             ep_dir,
-            camera_sources,
+            metadata,
+            args.derived_view,
             args.task,
-            args.max_frames_per_episode,
-            args.schema,
-            args.gripper_max_width,
-            args.image_width,
-            args.image_height,
         )
-        print(f"          saved {n_frames} frames")
-        converted += 1
+        for view in views:
+            print(f"[convert] {ep_dir.name} -> {view.name}")
+            n_frames = convert_episode(
+                dataset,
+                ep_dir,
+                camera_sources,
+                view.task,
+                args.max_frames_per_episode,
+                args.schema,
+                args.gripper_max_width,
+                args.image_width,
+                args.image_height,
+                args.fps,
+                view.start_time_ns,
+                view.end_time_ns,
+            )
+            print(f"          saved {n_frames} frames; task={view.task!r}")
+            converted += 1
     if hasattr(dataset, "finalize"):
         dataset.finalize()
     print(f"[done] converted {converted} episodes to {destination}")

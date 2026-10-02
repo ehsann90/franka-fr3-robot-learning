@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "robot_ip": "172.16.0.2",
+  "scope": "threading-only: 2x the 4x (recorded-source-speed) threading binaries, i.e. 0.24 rad/s peak",
+  "note": "This file only defines the threading_8x block. It intentionally does not define bracket/bolt arm-stage playback_time_scale_by_stage entries -- the arm/bolt stages are not being sped up, only threading, per the 2026-08-16 request.",
+  "threading_8x": {
+    "peak_angular_speed_rad_s": 0.24,
+    "combined_production_chain_enabled": false,
+    "combined_production_chain_status": "UNPRECEDENTED_SPEED_NEVER_COMMISSIONED_PENDING_READ_ONLY_PREVIEW",
+    "force_target_N": 1.200360,
+    "force_to_velocity_gain_m_s_per_N": 0.000416541704,
+    "maximum_axial_speed_m_s": 0.0005,
+    "hard_absolute_axial_delta_N": 2.0,
+    "hard_negative_residual_Tz_Nm": -0.5383051567216975,
+    "maximum_lateral_travel_m": 0.0003,
+    "collision_reflex_settings": "UNCHANGED",
+    "basis": "force/admittance targets copied unchanged from threading_4x; only peak_angular_speed_rad_s doubled from 0.12 to 0.24 per explicit operator request on 2026-08-16. No prior physical trial exists at this speed -- combined_production_chain_enabled must only be flipped true after a read-only preview against the live robot and an explicit decision to proceed, mirroring how 2x/3x/4x were each individually unlocked."
+  }
+}

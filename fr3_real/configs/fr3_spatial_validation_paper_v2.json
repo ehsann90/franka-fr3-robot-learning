@@ -1,0 +1,137 @@
+{
+  "description": "FR3 paper spatial-interpolation evaluation set with locked execution timing.",
+  "status": "active",
+  "supersedes": "fr3_spatial_validation_paper_v1.json",
+  "supersession_reason": "v1 used a step-2 replan schedule that changed the closed-loop policy rollout. v2 restores the previously commissioned step-8 schedule.",
+  "training_cells_source": "all_working_cells.json",
+  "total_positions": 10,
+  "trials_per_position": 3,
+  "total_trials": 30,
+  "success_target": 15,
+  "protocol": {
+    "checkpoint": "v3_12000",
+    "controller": "reference",
+    "policy_hz": 15.0,
+    "policy_action_horizon": 15,
+    "execute_steps_requested": 16,
+    "replan_at_step": 8,
+    "warmup_iterations": 30,
+    "max_steady_latency_s": 0.4,
+    "gripper_mode": "automatic only after policy transition; grasp and in-basket release verified",
+    "outcome_handling": "PASS and FAIL are valid task outcomes; INVALID is reported separately and rerun only after the infrastructure issue is resolved."
+  },
+  "selection": "adjacent-cell midpoints, then deterministic farthest-point sampling",
+  "excluded_manifest": "fr3_interstitial_eval_v1.json",
+  "positions": [
+    {
+      "x": 0.47545,
+      "y": -0.14609999999999998,
+      "table_z": 0.02445,
+      "axis": "y_midpoint",
+      "source_cells": [130, 80],
+      "eval_id": "I01",
+      "trials": 3,
+      "role": "validation_only",
+      "notes": "May be used for checkpoint selection, but never for retraining decisions."
+    },
+    {
+      "x": 0.32605,
+      "y": 0.36595,
+      "table_z": 0.0172,
+      "axis": "x_midpoint",
+      "source_cells": [33, 43],
+      "eval_id": "I02",
+      "trials": 3,
+      "role": "validation_only",
+      "notes": "May be used for checkpoint selection, but never for retraining decisions."
+    },
+    {
+      "x": 0.2587,
+      "y": -0.37285,
+      "table_z": 0.0265,
+      "axis": "y_midpoint",
+      "source_cells": [1, 2],
+      "eval_id": "I03",
+      "trials": 3,
+      "role": "validation_only",
+      "notes": "May be used for checkpoint selection, but never for retraining decisions."
+    },
+    {
+      "x": 0.3573,
+      "y": 0.09705,
+      "table_z": 0.0207,
+      "axis": "y_midpoint",
+      "source_cells": [39, 40],
+      "eval_id": "I04",
+      "trials": 3,
+      "role": "validation_only",
+      "notes": "May be used for checkpoint selection, but never for retraining decisions."
+    },
+    {
+      "x": 0.56575,
+      "y": -0.34650000000000003,
+      "table_z": 0.0243,
+      "axis": "y_midpoint",
+      "source_cells": [75, 76],
+      "eval_id": "I05",
+      "trials": 3,
+      "role": "validation_only",
+      "notes": "May be used for checkpoint selection, but never for retraining decisions."
+    },
+    {
+      "x": 0.6053,
+      "y": 0.02635,
+      "table_z": 0.024550000000000002,
+      "axis": "y_midpoint",
+      "source_cells": [88, 89],
+      "eval_id": "I06",
+      "trials": 3,
+      "role": "validation_only",
+      "notes": "May be used for checkpoint selection, but never for retraining decisions."
+    },
+    {
+      "x": 0.2792,
+      "y": -0.19190000000000002,
+      "table_z": 0.023600000000000003,
+      "axis": "y_midpoint",
+      "source_cells": [15, 108],
+      "eval_id": "I07",
+      "trials": 3,
+      "role": "validation_only",
+      "notes": "May be used for checkpoint selection, but never for retraining decisions."
+    },
+    {
+      "x": 0.6245499999999999,
+      "y": -0.15735,
+      "table_z": 0.02435,
+      "axis": "x_midpoint",
+      "source_cells": [86, 94],
+      "eval_id": "I08",
+      "trials": 3,
+      "role": "validation_only",
+      "notes": "May be used for checkpoint selection, but never for retraining decisions."
+    },
+    {
+      "x": 0.4039,
+      "y": -0.3402,
+      "table_z": 0.025349999999999998,
+      "axis": "x_midpoint",
+      "source_cells": [103, 53],
+      "eval_id": "I09",
+      "trials": 3,
+      "role": "validation_only",
+      "notes": "May be used for checkpoint selection, but never for retraining decisions."
+    },
+    {
+      "x": 0.3628,
+      "y": -0.05625,
+      "table_z": 0.0224,
+      "axis": "y_midpoint",
+      "source_cells": [37, 38],
+      "eval_id": "I10",
+      "trials": 3,
+      "role": "validation_only",
+      "notes": "May be used for checkpoint selection, but never for retraining decisions."
+    }
+  ]
+}
