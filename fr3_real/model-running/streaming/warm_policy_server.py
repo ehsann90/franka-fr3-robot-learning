@@ -18,6 +18,7 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from repo_paths import EVAL_LOGS_DIR
+from streaming.stream_policy_chunks import validate_server_metadata
 from shadow_fr3_policy import (
     DEFAULT_EXTERIOR_SERIAL,
     DEFAULT_PROMPT,
@@ -34,6 +35,7 @@ def main() -> None:
     parser.add_argument("--server-host", default="10.6.38.133")
     parser.add_argument("--server-port", type=int, default=8000)
     parser.add_argument("--checkpoint-label", required=True)
+    parser.add_argument("--policy-config-name", default="pi05_droid")
     parser.add_argument("--exterior-serial", default=DEFAULT_EXTERIOR_SERIAL)
     parser.add_argument("--wrist-serial", default=DEFAULT_WRIST_SERIAL)
     parser.add_argument("--camera-width", type=int, default=640)
@@ -67,13 +69,11 @@ def main() -> None:
 
     print("[WARMUP] Read-only policy warmup; no arm or gripper motion is commanded.")
     print(f"[WARMUP] expected_checkpoint={args.checkpoint_label} metadata={metadata!r}")
-    metadata_text = json.dumps(metadata, default=str)
-    if "checkpoint" in metadata_text.lower() and args.checkpoint_label not in metadata_text:
-        raise RuntimeError(
-            f"Server checkpoint metadata does not match {args.checkpoint_label!r}: {metadata!r}"
-        )
-    if "checkpoint" not in metadata_text.lower():
-        print("[WARMUP] WARNING server does not advertise checkpoint identity; label remains operator-supplied.")
+    for warning in validate_server_metadata(
+        metadata,
+        {"checkpoint": args.checkpoint_label, "openpi_config": args.policy_config_name},
+    ):
+        print(f"[WARMUP] WARNING {warning}")
 
     try:
         for _ in range(15):

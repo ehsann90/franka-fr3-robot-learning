@@ -1,0 +1,12 @@
+{
+  "name": "fr3_lab_pi05_v1",
+  "robot_ip": "192.170.10.101",
+  "exterior_serial": "244222076317",
+  "wrist_serial": "342222073510",
+  "server_host": "127.0.0.1",
+  "server_port": 8000,
+  "policy_hz": 15.0,
+  "checkpoint": "msbutt1/pi05-fr3-v3-12000",
+  "openpi_config": "pi05_droid",
+  "workspace_commissioned": false
+}

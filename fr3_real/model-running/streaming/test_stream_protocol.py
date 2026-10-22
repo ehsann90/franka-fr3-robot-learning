@@ -17,6 +17,8 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=51020)
     parser.add_argument("--state-port", type=int, default=51021)
+    parser.add_argument("--bounded-four-step", action="store_true",
+                        help="Wait for one four-step plan to finish before STOP.")
     args = parser.parse_args()
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock, socket.socket(
         socket.AF_INET, socket.SOCK_DGRAM
@@ -26,15 +28,16 @@ def main() -> None:
         state, _ = receive_latest_state(state_sock)
         print(f"received protocol-v{VERSION} state timestamp={state.monotonic_ns}")
 
-        velocities = np.zeros((8, 7), dtype=np.float64)
-        velocities[:, [0, 1, 3, 5, 6]] = [0.01, -0.01, 0.02, -0.02, 0.01]
+        velocities = np.zeros((4 if args.bounded_four_step else 8, 7), dtype=np.float64)
+        if not args.bounded_four_step:
+            velocities[:, [0, 1, 3, 5, 6]] = [0.01, -0.01, 0.02, -0.02, 0.01]
         # A 150 ms-old observation should activate around action index 2 at 15 Hz.
-        observation_ns = time.monotonic_ns() - 150_000_000
+        observation_ns = time.monotonic_ns() - (0 if args.bounded_four_step else 150_000_000)
         sock.sendto(make_command(1, observation_ns, velocities), ("127.0.0.1", args.port))
         activated, _ = receive_latest_state(state_sock)
         while activated.active_sequence != 1 and not activated.stop_reason:
             activated, _ = receive_latest_state(state_sock)
-        if activated.activation_offset not in (2, 3):
+        if not args.bounded_four_step and activated.activation_offset not in (2, 3):
             raise RuntimeError(f"unexpected activation offset {activated.activation_offset}")
         if activated.plan_steps != len(velocities):
             raise RuntimeError(f"unexpected accepted plan length {activated.plan_steps}")
@@ -42,6 +45,16 @@ def main() -> None:
             f"activated sequence=1 offset={activated.activation_offset} "
             f"step={activated.plan_step}"
         )
+        if args.bounded_four_step:
+            completed = activated
+            deadline = time.monotonic() + 2.0
+            while completed.plan_step < 4 and not completed.stop_reason:
+                if time.monotonic() > deadline:
+                    raise TimeoutError("four-step plan did not complete")
+                completed, _ = receive_latest_state(state_sock)
+            if completed.stop_reason:
+                raise RuntimeError(f"plan stopped before completion: {completed.stop_reason_name}")
+            print("four-step plan completed; sending STOP")
 
         sock.sendto(
             make_command(2, time.monotonic_ns(), None), ("127.0.0.1", args.port)

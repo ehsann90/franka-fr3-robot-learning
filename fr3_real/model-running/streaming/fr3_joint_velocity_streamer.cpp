@@ -388,6 +388,7 @@ struct Args {
   Limits limits;
   Workspace workspace;
   bool dry_run = false;
+  bool check_args = false;
 };
 
 Args parse_args(int argc, char** argv) {
@@ -407,9 +408,22 @@ Args parse_args(int argc, char** argv) {
       args.dry_run = true;
       continue;
     }
+    if (key == "--check-args") {
+      args.check_args = true;
+      continue;
+    }
     auto value = [&]() -> std::string {
       if (++index >= argc) throw std::runtime_error("Missing value for " + key);
       return argv[index];
+    };
+    auto scalar = [&]() -> double {
+      const std::string input = value();
+      size_t consumed = 0;
+      const double parsed = std::stod(input, &consumed);
+      if (consumed != input.size() || !std::isfinite(parsed)) {
+        throw std::runtime_error("Invalid numeric value for " + key + ": " + input);
+      }
+      return parsed;
     };
     if (key == "--command-port") {
       args.command_port = static_cast<uint16_t>(std::stoi(value()));
@@ -436,7 +450,7 @@ Args parse_args(int argc, char** argv) {
     } else if (key == "--max-z") {
       args.workspace.maximum[2] = std::stod(value());
     } else if (key == "--guard-margin") {
-      for (double& margin : args.workspace.guard_margin) margin = std::stod(value());
+      args.workspace.guard_margin.fill(scalar());
     } else if (key == "--workspace-braking-acceleration") {
       args.workspace.braking_acceleration = std::stod(value());
     } else if (key == "--workspace-reaction-s") {
@@ -444,11 +458,11 @@ Args parse_args(int argc, char** argv) {
     } else if (key == "--workspace-braking-buffer") {
       args.workspace.braking_buffer = std::stod(value());
     } else if (key == "--velocity-caps") {
-      for (double& limit : args.limits.velocity) limit = std::stod(value());
+      args.limits.velocity.fill(scalar());
     } else if (key == "--acceleration-caps") {
-      for (double& limit : args.limits.acceleration) limit = std::stod(value());
+      args.limits.acceleration.fill(scalar());
     } else if (key == "--jerk-caps") {
-      for (double& limit : args.limits.jerk) limit = std::stod(value());
+      args.limits.jerk.fill(scalar());
     } else {
       throw std::runtime_error("Unknown option: " + key);
     }
@@ -854,6 +868,20 @@ TelemetryEvent base_event(const franka::RobotState& state) {
 int main(int argc, char** argv) {
   try {
     const Args args = parse_args(argc, argv);
+    if (args.check_args) {
+      auto print_values = [](const char* name, const auto& values) {
+        std::cout << name << "=[";
+        for (size_t i = 0; i < values.size(); ++i) {
+          std::cout << values[i] << (i + 1 == values.size() ? "]" : ",");
+        }
+        std::cout << std::endl;
+      };
+      print_values("velocity_caps", args.limits.velocity);
+      print_values("acceleration_caps", args.limits.acceleration);
+      print_values("jerk_caps", args.limits.jerk);
+      print_values("guard_margin", args.workspace.guard_margin);
+      return 0;
+    }
     std::signal(SIGINT, on_signal);
     std::signal(SIGTERM, on_signal);
     Mailbox mailbox;

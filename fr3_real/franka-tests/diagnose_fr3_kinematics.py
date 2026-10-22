@@ -23,12 +23,12 @@ def main() -> None:
     parser.add_argument("--robot_ip", default="172.16.0.2")
     args = parser.parse_args()
 
-    from franky import Frame, Robot
+    from franky import Frame, Robot, RealtimeConfig
 
     print("[KIN] Read-only diagnostic: this script never commands robot motion.")
     input("Confirm the workspace is clear, then press Enter to connect read-only...")
 
-    robot = Robot(args.robot_ip)
+    robot = Robot(args.robot_ip, realtime_config=RealtimeConfig.Ignore)
     state = robot.state
     model = robot.model
 
